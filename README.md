@@ -1,7 +1,7 @@
 # JSON Outline Schema
 
 JSON Outline Schema is a standard way of expressing and storing the relation between objects. It gives you a simple way of linking data together to form an outline of related concepts / entities. Here is an example of a JSON Outline schema entity:
-```
+```json
 {
   "id": "unique-id-of-the-item-1",
   "indent": "1",
@@ -13,7 +13,7 @@ JSON Outline Schema is a standard way of expressing and storing the relation bet
 }
 ```
 This gives you enough data to visually represent this information in an outline form. Let's look at a larger example of 3 items related together which would express nested hierarchy in a consistent way:
-```
+```json
 {
   "id": "123-ddc-d321d-d2e-dd2",
   "title": "My outline",
@@ -57,19 +57,19 @@ This gives you enough data to visually represent this information in an outline 
 
 Let's break down thes properties and why we have them in the schema:
 ## Higher order schema
-- title - name of the work as a whole
-- author - who created this work
-- description - short description of the work to explain it
-- license - a valid license short hard for the work as a whole
-- metadata - area to storing any additional details about the work. This has no standard structure but could be used for relating work if needed.
-- id - a unique identifier for this work in the universe of all works
-- items - an array of schema elements which contain the pages / leaves of the structure of this outline
+- `title` - name of the work as a whole
+- `author` - who created this work
+- `description` - short description of the work to explain it
+- `license` - a valid license short hard for the work as a whole
+- `metadata` - area to storing any additional details about the work. This has no standard structure but could be used for relating work if needed.
+- `id` - a unique identifier for this work in the universe of all works
+- `items` - an array of schema elements which contain the pages / leaves of the structure of this outline
 
 ## Leaf / page element within the structure
-- id - the UUID / unique ID of the element
-- indent - How far to visually position the item inward. You could have something be the parent as a page but visually only be indented 2 levels
-- location - a file or resource that references the related data to display here
-- order - a weighting as to the order relative to other items that match this parent level
-- parent - a UUID / unique ID of the element this is a child of
-- title - title of this item to display
-- metadata - a container for any additional details of information you need to ship. This has no standard structure
+- `id` - the UUID / unique ID of the element
+- `indent` - How far to visually position the item inward. You could have something be the parent as a page but visually only be indented 2 levels
+- `location` - a file or resource that references the related data to display here
+- `order` - a weighting as to the order relative to other items that match this parent level
+- `parent` - a UUID / unique ID of the element this is a child of
+- `title` - title of this item to display
+- `metadata` - a container for any additional details of information you need to ship. This has no standard structure
