@@ -29,6 +29,7 @@ This gives you enough data to visually represent this information in an outline 
       "order": "0",
       "parent": null,
       "title": "Outline",
+      "description": "A description at a glance of this item potentially",
       "metadata": {
         "icon": "icons:view-quilt"
       }
@@ -40,6 +41,7 @@ This gives you enough data to visually represent this information in an outline 
       "order": "0",
       "parent": "item-1",
       "title": "Introduction to outlines",
+      "description": "A description at a glance of this item potentially",
       "metadata": {}
     },
     {
@@ -49,6 +51,7 @@ This gives you enough data to visually represent this information in an outline 
       "order": "1",
       "parent": "item-1",
       "title": "An item in an outline",
+      "description": "A description at a glance of this item potentially",
       "metadata": {}
     }
   ]
