@@ -75,4 +75,5 @@ Let's break down thes properties and why we have them in the schema:
 - `order` - a weighting as to the order relative to other items that match this parent level
 - `parent` - a UUID / unique ID of the element this is a child of
 - `title` - title of this item to display
+- `description` - short description of the item to explain it
 - `metadata` - a container for any additional details of information you need to ship. This has no standard structure
