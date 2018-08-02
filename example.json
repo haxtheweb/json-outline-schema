@@ -13,6 +13,7 @@
       "order": "0",
       "parent": null,
       "title": "Outline",
+      "description": "Our outline, we love thee",
       "metadata": {
         "icon": "icons:view-quilt"
       }
@@ -23,7 +24,8 @@
       "location": "introduction.html",
       "order": "0",
       "parent": "item-1",
-      "title": "Introduction to outlines",
+      "title": "Introduction",
+      "description": "An introduction to outlines",
       "metadata": {}
     },
     {
@@ -33,6 +35,7 @@
       "order": "1",
       "parent": "item-1",
       "title": "An item in an outline",
+      "description": "One item of many in the universe",
       "metadata": {}
     }
   ]
