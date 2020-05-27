@@ -76,6 +76,7 @@ Let's break down thes properties and why we have them in the schema:
 - `id` - the UUID / unique ID of the element
 - `indent` - How far to visually position the item inward. You could have something be the parent as a page but visually only be indented 2 levels
 - `location` - a file or resource that references the related data to display here
+- `slug` - a uri portion that is how this resource should be presented on the web. Can be same as location but allows abstraction away from the actual location of the file via this attribute
 - `order` - a weighting as to the order relative to other items that match this parent level
 - `parent` - a UUID / unique ID of the element this is a child of
 - `title` - title of this item to display
