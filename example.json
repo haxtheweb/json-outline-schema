@@ -10,10 +10,11 @@
       "id": "item-1",
       "indent": "1",
       "location": "outline.html",
+      "slug": "outline",
       "order": "0",
       "parent": null,
       "title": "Outline",
-      "description": "Our outline, we love thee",
+      "description": "A description at a glance of this item potentially",
       "metadata": {
         "icon": "icons:view-quilt"
       }
@@ -22,20 +23,22 @@
       "id": "item-2",
       "indent": "2",
       "location": "introduction.html",
+      "slug": "introduction",
       "order": "0",
       "parent": "item-1",
-      "title": "Introduction",
-      "description": "An introduction to outlines",
+      "title": "Introduction to outlines",
+      "description": "A description at a glance of this item potentially",
       "metadata": {}
     },
     {
       "id": "item-3",
       "indent": "2",
       "location": "files/a-2nd-page-item.html",
+      "slug": "a-2nd-page-item",
       "order": "1",
       "parent": "item-1",
       "title": "An item in an outline",
-      "description": "One item of many in the universe",
+      "description": "A description at a glance of this item potentially",
       "metadata": {}
     }
   ]
