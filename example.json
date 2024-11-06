@@ -1,15 +1,27 @@
 {
-  "id": "123-ddc-d321d-d2e-dd2",
-  "title": "My outline",
-  "author": "LRNWebComponents",
+  "id": "b8e14c34-6f48-4f74-aca4-12313131313131",
+  "title": "My Site",
+  "author": "haxtheweb",
   "description": "A series of related material to teach you about the structure of content.",
   "license": "by-sa",
-  "metadata": {},
+  "metadata": {
+    "author": {},
+    "site": {
+      "name": "mysite",
+      "lang": "en",
+      "created": "1422799200"
+    },
+    "theme": {
+      "element": "clean-one",
+      "path": "@haxtheweb/clean-one/clean-one.js",
+      "name": "Clean one"
+    }
+  },
   "items": [
     {
       "id": "item-1",
       "indent": "1",
-      "location": "outline.html",
+      "location": "path/to/file/contents.html",
       "slug": "outline",
       "order": "0",
       "parent": null,
