@@ -22,7 +22,7 @@ The HAX ecosystem consists of multiple interconnected repositories, each serving
 
 - **`hax11ty`** - Integration layer that bridges HAX components with Eleventy (11ty) static site generator, enabling HAX components in traditional static sites.
 
-- **`json-outline-schema`** - Defines the JSON schema used by HAXcms for content structure, site navigation, and metadata management.
+- **`json-outline-schema`** - Defines the JSON schema used by HAXcms for content structure, site navigation, and metadata management. It also documents the Skeleton API, which describes reusable HAXcms site skeletons built on JSON Outline Schema and exposes them via the `skeletonsList` and `getSkeleton` endpoints.
 
 - **`hax-schema`** - Contains HAX property schemas that define how web components integrate with the HAX authoring interface.
 
