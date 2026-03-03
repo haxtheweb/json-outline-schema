@@ -68,7 +68,7 @@ Let's break down thes properties and why we have them in the schema:
 - `author` - who created this work
 - `description` - short description of the work to explain it
 - `license` - a valid license short hard for the work as a whole
-- `metadata` - area to storing any additional details about the work. This has no standard structure but could be used for relating work if needed.
+- `metadata` - area to storing any additional details about the work. Core JSON Outline Schema intentionally keeps this open-ended; downstream systems (like HAXcms) define practical conventions in this area.
 - `id` - a unique identifier for this work in the universe of all works
 - `items` - an array of schema elements which contain the pages / leaves of the structure of this outline
 
@@ -81,7 +81,60 @@ Let's break down thes properties and why we have them in the schema:
 - `parent` - a UUID / unique ID of the element this is a child of
 - `title` - title of this item to display
 - `description` - short description of the item to explain it
-- `metadata` - a container for any additional details of information you need to ship. This has no standard structure
+- `metadata` - a container for any additional details of information you need to ship. This has no standard structure in core JSON Outline Schema.
+
+## HAXcms metadata conventions layered on JSON Outline Schema
+
+JSON Outline Schema is intentionally flexible about `metadata`. In practice, HAXcms uses stable metadata groups that are important to document for interoperability (including ingest into systems like PRAW), even though these groups are not formally required by JOS itself.
+
+### `metadata.site`
+
+Holds site-level information and operational settings used by HAXcms:
+
+- `name` - machine name for the site (folder / instance alignment).
+- `created` / `updated` - unix timestamps.
+- `logo`, `domain`, `tags`, `homePageId` - common site metadata values.
+- `settings` - feature flags and runtime behavior (for example `lang`, `publishPagesOn`, `canonical`, `pathauto`, `sw`, `forceUpgrade`, `gaID`).
+- `git` - optional publishing/deployment information.
+
+### `metadata.theme`
+
+Describes the active theme and theme-level settings:
+
+- `element` - theme element tag (for example `clean-one`).
+- `path` / `name` - theme module metadata (when present).
+- `variables` - visual tokens like `hexCode`, `cssVariable`, `icon`, `image`, `imageAlt`, `imageLink`.
+- `regions` - optional region-to-node mappings used by theme layouts.
+- `styleGuide` - optional external style-guide URL (if set, HAXcms treats style-guide editing as external).
+
+### `metadata.platform` (HAX editor / CMS behavior controls)
+
+Stores audience, feature toggles, and block-allow lists used to constrain editing behavior in HAXcms:
+
+- `audience` - currently `novice` or `expert`.
+- `features` - boolean map of platform capabilities (for example `addPage`, `deletePage`, `outlineDesigner`, `styleGuide`, `insights`, `manifest`, `pageBreak`, `addBlock`, `contentMap`, `viewSource`, `onlineSearch`).
+- `allowedBlocks` - array of allowed HTML tags / registered web-component tag names.
+
+Current compatibility support in HAXcms also accepts legacy keys:
+
+- `delete` mapped to modern `features.deletePage`
+- `blocks` mapped to modern `allowedBlocks`
+
+### `metadata.node`
+
+Used for node/page-level field configuration metadata, commonly initialized as:
+
+- `metadata.node.fields` - object storing node field definitions and related data.
+
+### How platform settings affect block behavior
+
+HAXcms uses `metadata.platform` directly in editor runtime decisions:
+
+- Block registration marks blocks as restricted when `platformAllows(tag)` is false.
+- `features.addBlock = false` prevents block insertion UI actions.
+- `allowedBlocks` filters available insertable blocks.
+- Required primitive text tags remain available even when block restrictions apply.
+- In `expert` audience mode, an empty `allowedBlocks` list defaults to allowing all blocks; in non-expert modes, block access is enforced by `allowedBlocks`.
 
 ## Skeleton API
 
@@ -108,7 +161,8 @@ A typical skeleton JSON document has this top-level structure:
     "items": [ /* outline items */ ],
     "files": []
   },
-  "theme": { /* visual metadata for dashboards */ }
+  "theme": { /* visual metadata for dashboards */ },
+  "_skeleton": { /* optional export metadata from site-skeleton-generator */ }
 }
 ```
 
@@ -167,6 +221,35 @@ Provides theme-specific visual metadata used by dashboards and selection UIs:
 - `icon` – icon identifier representing the skeleton.
 - `image` – path/URL to a preview image for the skeleton.
 
+#### `_skeleton` (optional but increasingly important for ingestion)
+
+This non-required block is currently used by HAXcms skeleton export workflows to preserve source metadata for downstream systems:
+
+- `originalMetadata` – extracted source metadata groups, including `site`, `platform`, `node`, and licensing information.
+- `originalSettings` – extracted `metadata.site.settings`.
+- `fullThemeConfig` – expanded theme configuration snapshot.
+
+When present, `_skeleton.originalMetadata.platform` carries the same platform settings model described above, which lets consumers understand block-level and feature-level restrictions without reconstructing them from UI state.
+
+### Suggested Skeleton API adjustments for clearer JOS/PRAW interoperability
+
+These are recommended improvements to keep Skeleton API data easier to ingest and reason about:
+
+1. **Promote platform metadata to a first-class top-level field**
+   - Add optional top-level `platform` in skeleton payloads.
+   - Keep `_skeleton.originalMetadata.platform` as compatibility source during transition.
+2. **Document a normalized platform schema**
+   - Canonical shape: `{ audience, features, allowedBlocks }`.
+   - Keep legacy read support for `{ delete, blocks }` but avoid writing legacy keys in new skeletons.
+3. **Expose richer list metadata from `skeletonsList`**
+   - Keep returning `machineName` / `machine-name` and `priority` for predictable client sorting and lookup.
+   - Continue omitting internal fallback skeletons (such as `default-starter`) from public selections.
+4. **Document metadata pass-through expectations explicitly**
+   - Clarify that site creation and manifest editing should preserve `metadata.platform` rather than dropping or flattening it.
+   - Clarify that block restrictions should be interpreted from platform metadata, not inferred heuristically.
+5. **Version extension blocks**
+   - Add explicit versioning guidance for `_skeleton` and any top-level `platform` block so ingestion tools can branch safely over time.
+
 ### HTTP endpoints
 
 Skeleton JSON documents are exposed via two HAXcms API endpoints, implemented in both the PHP (`Operations::skeletonsList` / `Operations::getSkeleton`) and Node.js backends.
@@ -189,8 +272,11 @@ Returns the list of available skeletons visible to the current user.
       "title": "Online Course",
       "description": "An online course skeleton using the Clean One theme with syllabus and lesson pages.",
       "image": "@haxtheweb/haxcms-elements/lib/theme-screenshots/theme-clean-one-thumb.jpg",
+      "priority": 0,
       "category": ["Course"],
       "attributes": [],
+      "machineName": "online-course-clean-one",
+      "machine-name": "online-course-clean-one",
       "demo-url": "#",
       "skeleton-url": ".../getSkeleton?name=online-course-clean-one&user_token=..."
     }
@@ -198,7 +284,7 @@ Returns the list of available skeletons visible to the current user.
 }
 ```
 
-Each item in `data` is derived from the corresponding skeleton file's `meta` block. The `skeleton-url` field provides a ready-to-use URL for fetching the full skeleton JSON (see `getSkeleton` below).
+Each item in `data` is derived from the corresponding skeleton file's `meta` block. The `skeleton-url` field provides a ready-to-use URL for fetching the full skeleton JSON (see `getSkeleton` below). The list intentionally excludes internal fallback skeletons such as `default-starter`.
 
 #### `GET /getSkeleton`
 
@@ -218,7 +304,8 @@ Returns the full JSON definition of a single skeleton.
     "meta": { /* skeleton metadata */ },
     "site": { /* site configuration */ },
     "build": { /* build instructions and outline items */ },
-    "theme": { /* visual metadata */ }
+    "theme": { /* visual metadata */ },
+    "_skeleton": { /* optional source metadata snapshot */ }
   }
 }
 ```

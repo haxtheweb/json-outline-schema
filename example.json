@@ -9,12 +9,48 @@
     "site": {
       "name": "mysite",
       "lang": "en",
-      "created": "1422799200"
+      "created": "1422799200",
+      "updated": "1422799200",
+      "settings": {
+        "lang": "en-US",
+        "publishPagesOn": true,
+        "canonical": true
+      }
     },
     "theme": {
       "element": "clean-one",
       "path": "@haxtheweb/clean-one/clean-one.js",
-      "name": "Clean one"
+      "name": "Clean one",
+      "variables": {
+        "hexCode": "#006699",
+        "cssVariable": "--simple-colors-default-theme-light-blue-7",
+        "icon": "icons:book"
+      }
+    },
+    "platform": {
+      "audience": "expert",
+      "features": {
+        "addPage": true,
+        "deletePage": true,
+        "outlineDesigner": true,
+        "styleGuide": true,
+        "insights": true,
+        "manifest": true,
+        "pageBreak": true,
+        "addBlock": true,
+        "contentMap": true,
+        "viewSource": true,
+        "onlineSearch": true
+      },
+      "allowedBlocks": [
+        "p",
+        "h2",
+        "media-image",
+        "video-player"
+      ]
+    },
+    "node": {
+      "fields": {}
     }
   },
   "items": [
