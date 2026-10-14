@@ -1,0 +1,9 @@
+{
+  "id": "invalid-cycle",
+  "title": "Cycle, duplicate id and duplicate slug",
+  "items": [
+    { "id": "a", "title": "A", "parent": "b", "order": 0, "slug": "same" },
+    { "id": "b", "title": "B", "parent": "a", "order": 0, "slug": "same" },
+    { "id": "b", "title": "B again", "parent": null, "order": 1 }
+  ]
+}

@@ -8,10 +8,10 @@ JSON Outline Schema is a standard way of expressing and storing the relation bet
 ```json
 {
   "id": "unique-id-of-the-item-1",
-  "indent": "1",
+  "indent": 1,
   "location": "name-of-some-file-or-location.html",
   "slug": "name-of-some-path-in-the-url",
-  "order": "0",
+  "order": 0,
   "parent": "unique-id-of-the-parent",
   "title": "Name of some file or location",
   "metadata": {}
@@ -29,10 +29,10 @@ This gives you enough data to visually represent this information in an outline 
   "items": [
     {
       "id": "item-1",
-      "indent": "1",
+      "indent": 0,
       "location": "outline.html",
       "slug": "outline",
-      "order": "0",
+      "order": 0,
       "parent": null,
       "title": "Outline",
       "description": "A description at a glance of this item potentially",
@@ -42,10 +42,10 @@ This gives you enough data to visually represent this information in an outline 
     },
     {
       "id": "item-2",
-      "indent": "2",
+      "indent": 1,
       "location": "introduction.html",
       "slug": "introduction",
-      "order": "0",
+      "order": 0,
       "parent": "item-1",
       "title": "Introduction to outlines",
       "description": "A description at a glance of this item potentially",
@@ -53,10 +53,10 @@ This gives you enough data to visually represent this information in an outline 
     },
     {
       "id": "item-3",
-      "indent": "2",
+      "indent": 1,
       "location": "files/a-2nd-page-item.html",
       "slug": "a-2nd-page-item",
-      "order": "1",
+      "order": 1,
       "parent": "item-1",
       "title": "An item in an outline",
       "description": "A description at a glance of this item potentially",
@@ -66,26 +66,59 @@ This gives you enough data to visually represent this information in an outline 
 }
 ```
 
-Let's break down thes properties and why we have them in the schema:
+Let's break down these properties and why we have them in the schema:
 ## Higher order schema
 - `title` - name of the work as a whole
 - `author` - who created this work
 - `description` - short description of the work to explain it
-- `license` - a valid license short hard for the work as a whole
+- `license` - a valid license short-hand for the work (HAXcms understands `by`, `by-sa`, `by-nd`, `by-nc`, `by-nc-sa`, `by-nc-nd`) as a whole
 - `metadata` - area to storing any additional details about the work. Core JSON Outline Schema intentionally keeps this open-ended; downstream systems (like HAXcms) define practical conventions in this area.
 - `id` - a unique identifier for this work in the universe of all works
 - `items` - an array of schema elements which contain the pages / leaves of the structure of this outline
 
 ## Leaf / page element within the structure
 - `id` - the UUID / unique ID of the element
-- `indent` - How far to visually position the item inward. You could have something be the parent as a page but visually only be indented 2 levels
+- `indent` - How far to visually position the item inward (integer, `0` = top level). It normally equals the item's depth in the tree, but it is a display hint: derive hierarchy from `parent`, never from `indent`
 - `location` - a file or resource that references the related data to display here
-- `slug` - a uri portion that is how this resource should be presented on the web. Can be same as location but allows abstraction away from the actual location of the file via this attribute
-- `order` - a weighting as to the order relative to other items that match this parent level
-- `parent` - a UUID / unique ID of the element this is a child of
+- `slug` - a uri portion that is how this resource should be presented on the web. Can be same as location but allows abstraction away from the actual location of the file via this attribute. Must be unique in the outline, never starts with `/`, and may contain `/` (HAXcms builds `parent-slug/child-slug` when `pathauto` is on)
+- `order` - integer weighting relative to the other items that share the same `parent` (0-based)
+- `parent` - the `id` of the element this is a child of, or `null` for a top-level item
 - `title` - title of this item to display
 - `description` - short description of the item to explain it
-- `metadata` - a container for any additional details of information you need to ship. This has no standard structure in core JSON Outline Schema.
+- `metadata` - a container for any additional details of information you need to ship. This has no standard structure in core JSON Outline Schema. HAXcms drops any item key that is not listed above when it saves, so anything extra belongs in `metadata`.
+
+## Machine-readable schemas and validation
+
+The prose in this README is backed by [JSON Schema (draft 2020-12)](https://json-schema.org/) files that tools, editors and AI agents can load directly:
+
+| Schema | Validates |
+| --- | --- |
+| [`schema/json-outline-schema.schema.json`](schema/json-outline-schema.schema.json) | Any JSON Outline Schema document (core spec only) |
+| [`schema/haxcms-site.schema.json`](schema/haxcms-site.schema.json) | A HAXcms `site.json` (core + the `metadata` conventions below) |
+| [`schema/skeleton.schema.json`](schema/skeleton.schema.json) | A HAXcms site skeleton (see [Skeleton API](#skeleton-api)) |
+
+JSON Schema cannot express cross-item rules, so `scripts/validate.js` adds them: unique `id`s, `parent` pointing at a real item, no parent cycles, unique `slug`s, plus warnings for `indent` that disagrees with tree depth, repeated sibling `order`, string-typed numbers, and non-standard `location` paths.
+
+```bash
+npm install
+node scripts/validate.js path/to/site.json              # type is auto-detected
+node scripts/validate.js --type skeleton my-skeleton.json
+node scripts/validate.js --json site.json               # machine-readable report
+npm test                                                # self-test against examples/
+```
+
+Examples: [`example.json`](example.json) (HAXcms site), [`examples/minimal.json`](examples/minimal.json) (smallest valid outline), [`examples/skeleton.json`](examples/skeleton.json), and [`examples/invalid/`](examples/invalid) (one file per mistake the validator catches).
+
+## Rules for tools and agents that write outlines
+
+These are the things that most often go wrong when a program (or an AI agent) edits `site.json` by hand:
+
+1. **The tree is `parent` + `order`, nothing else.** Top-level items have `"parent": null`. `order` is a 0-based integer among siblings. Array position and `indent` are not authoritative.
+2. **Keep `indent` equal to depth** (0 for top level) when you add or move items, so themes render consistently.
+3. **Every `id` and every `slug` must be unique.** Never reuse an id after deleting an item.
+4. **Do not invent item keys.** HAXcms keeps only `id`, `indent`, `location`, `slug`, `order`, `parent`, `title`, `description` and `metadata`; anything else (for example `content`) is silently dropped on the next save. Page HTML lives in the file at `location` (HAXcms: `pages/<id>/index.html`).
+5. **Write canonical types:** integers for `indent` / `order` / timestamps, booleans for flags such as `metadata.published` and `metadata.hideInMenu`. Readers must still accept the legacy string forms (`"1"`, `""`) found in older sites.
+6. **Prefer the HAX CLI or HAXcms endpoints** over hand edits when they are available; they also update `pages/`, regenerate computed metadata, and rebuild derived files. Validate with `scripts/validate.js` after any hand edit.
 
 ## HAXcms metadata conventions layered on JSON Outline Schema
 
@@ -98,7 +131,7 @@ Holds site-level information and operational settings used by HAXcms:
 - `name` - machine name for the site (folder / instance alignment).
 - `created` / `updated` - unix timestamps.
 - `logo`, `domain`, `tags`, `homePageId` - common site metadata values.
-- `settings` - feature flags and runtime behavior (for example `lang`, `publishPagesOn`, `canonical`, `pathauto`, `sw`, `forceUpgrade`, `gaID`).
+- `settings` - feature flags and runtime behavior (for example `lang`, `publishPagesOn`, `canonical`, `pathauto`, `private`, `sw`, `forceUpgrade`, `gaID`).
 - `git` - optional publishing/deployment information.
 
 ### `metadata.theme`
@@ -115,14 +148,39 @@ Describes the active theme and theme-level settings:
 
 Stores audience, feature toggles, and block-allow lists used to constrain editing behavior in HAXcms:
 
-- `audience` - currently `novice` or `expert`.
-- `features` - boolean map of platform capabilities (for example `addPage`, `deletePage`, `outlineDesigner`, `styleGuide`, `insights`, `manifest`, `pageBreak`, `addBlock`, `contentMap`, `viewSource`, `onlineSearch`).
-- `allowedBlocks` - array of allowed HTML tags / registered web-component tag names.
+- `audience` - `novice` or `expert` (defaults to `expert` when missing). Used to tailor UI; it does not change how `allowedBlocks` is interpreted.
+- `features` - boolean map of platform capabilities. A **missing key means enabled**; only an explicit `false` turns a feature off. Keys HAXcms currently recognizes: `addPage`, `saveAndEdit`, `deletePage`, `styleGuide`, `outlineDesigner`, `insights`, `siteManifest`, `themeManifest`, `authorManifest`, `seoManifest`, `addBlock`, `contentMap`, `viewSource`, `uploadMedia`, `onlineMedia`, `pageBreak`, `pageTemplates`, `blockTemplates`, `popularGizmos`, `recentGizmos`, `community`, `views` (source of truth: `__supportedFeatures` in `haxcms-site-store.js`).
+- `allowedBlocks` - allow-list of optional block tags (HTML tags / registered web-component tag names):
+  - missing or `[]` - no allow-list defined, every block is allowed
+  - `null` - no optional blocks are allowed
+  - `["media-image", ...]` - only these tags (plus the required primitive text tags)
 
 Current compatibility support in HAXcms also accepts legacy keys:
 
 - `delete` mapped to modern `features.deletePage`
 - `blocks` mapped to modern `allowedBlocks`
+- feature booleans written directly on `platform` (for example `platform.addPage`) are folded into `features`
+
+New data should only use `audience`, `features` and `allowedBlocks`.
+
+### `metadata.author` and `metadata.build`
+
+- `metadata.author` - site author profile shown by themes: `name`, `email`, `image`, `socialLink`.
+- `metadata.build` - written once at site creation: `version`, `structure` (for example `course`, `from-skeleton`), `type`.
+
+### Item metadata (`items[].metadata`)
+
+Per-page keys HAXcms reads and writes:
+
+- `published` - page is visible to visitors (missing = published).
+- `hideInMenu` - keep the page out of navigation but reachable by URL.
+- `locked` - prevent editing in the HAX editor.
+- `created` / `updated` - unix timestamps (seconds).
+- `tags` - comma-separated string (arrays in skeletons).
+- `icon`, `image` - menu icon (`iconset:name`) and featured image.
+- `theme` - per-page theme override, same shape as `metadata.theme`.
+- `overridePathauto` - keep this page's slug even when `settings.pathauto` is on.
+- Computed on save (writers can omit): `readtime`, `images`, `videos`, `files`, `contentDetails`.
 
 ### `metadata.node`
 
@@ -138,7 +196,7 @@ HAXcms uses `metadata.platform` directly in editor runtime decisions:
 - `features.addBlock = false` prevents block insertion UI actions.
 - `allowedBlocks` filters available insertable blocks.
 - Required primitive text tags remain available even when block restrictions apply.
-- In `expert` audience mode, an empty `allowedBlocks` list defaults to allowing all blocks; in non-expert modes, block access is enforced by `allowedBlocks`.
+- An empty or missing `allowedBlocks` allows all blocks in every audience; `null` allows none; a non-empty list is enforced as written.
 
 ## Skeleton API
 
@@ -174,7 +232,10 @@ A typical skeleton JSON document has this top-level structure:
 
 Describes the skeleton itself and how it should appear in UIs:
 
-- `name` – machine-readable key used as the skeleton file name (and as the `name` query value).
+- `name` – machine-readable key. Keep it identical to the file name (without `.json`) and to `machineName`: `skeletonsList` reports the normalized file name as `machineName`, while `getSkeleton` accepts the file name, `meta.machineName` or `meta.name`.
+- `machineName` – same as `name` (written by the generator).
+- `priority` – sort weight in selection lists.
+- `sourceUrl` – the site the skeleton was exported from (generator output).
 - `description` – short description of what this skeleton is for.
 - `version` – version of the skeleton definition.
 - `created` – ISO 8601 timestamp of when the skeleton was created.
@@ -193,6 +254,8 @@ Provides initial HAXcms site configuration:
 - `name` – base site name (used for folder/instance naming).
 - `description` – default description for the new site.
 - `theme` – HAXcms theme identifier to apply to the generated site.
+- `settings` – optional; copied into `metadata.site.settings` of the new site.
+- `platform` – optional; copied into `metadata.platform` of the new site (same `{ audience, features, allowedBlocks }` model described above).
 
 #### `build`
 
@@ -201,7 +264,7 @@ Defines how to generate the site from the skeleton. This is where Skeleton API d
 - `type` – build type, usually `"skeleton"`.
 - `structure` – strategy for constructing the site (for example `"from-skeleton"`).
 - `items` – array of outline items that closely match the JSON Outline Schema leaf/page structure (see below).
-- `files` – optional array of additional files to create or copy into the new site.
+- `files` – optional array of additional files to copy into the new site's `files/` directory. The generator writes `{ "path": "image.jpg" }` objects.
 
 Each entry in `build.items` typically has:
 
@@ -212,13 +275,15 @@ Each entry in `build.items` typically has:
 - `parent` – ID of the parent item (or `null` for top-level pages).
 - `indent` – visual indentation level (mirrors the JSON Outline Schema `indent` concept).
 - `content` – initial HTML content to seed the generated page.
-- `metadata` – arbitrary key/value data for the page (for example `published`, `hideInMenu`, `tags`).
+- `metadata` – arbitrary key/value data for the page (for example `published`, `hideInMenu`, `tags`). In skeletons `tags` is an array.
+
+Skeleton items have no `location`; HAXcms issues fresh ids and page files when it builds a site, and content can reference other items by these ids (elements with a `siteToSkeleton` haxHook rewrite their own references).
 
 These `items` can be thought of as an extended JSON Outline Schema: they express the same outline relationships while also providing initial page content and richer per-page metadata.
 
 #### `theme`
 
-Provides theme-specific visual metadata used by dashboards and selection UIs:
+Provides theme-specific visual metadata used by dashboards and selection UIs. Hand-written skeletons use the tile fields below; skeletons exported by the generator also merge in theme config fields (`element`, `path`, `name`, `thumbnail`, `regions`, ...):
 
 - `hexCode` – primary color hex code for preview tiles.
 - `cssVariable` – CSS custom property reference for the theme color.
@@ -227,21 +292,17 @@ Provides theme-specific visual metadata used by dashboards and selection UIs:
 
 #### `_skeleton` (optional but increasingly important for ingestion)
 
-This non-required block is currently used by HAXcms skeleton export workflows to preserve source metadata for downstream systems:
+This non-required block holds generator metadata. The current HAXcms site-skeleton-generator writes only:
 
-- `originalMetadata` – extracted source metadata groups, including `site`, `platform`, `node`, and licensing information.
-- `originalSettings` – extracted `metadata.site.settings`.
-- `fullThemeConfig` – expanded theme configuration snapshot.
+- `fullThemeConfig` – `{ element, variables }` snapshot of the source site's theme.
 
-When present, `_skeleton.originalMetadata.platform` carries the same platform settings model described above, which lets consumers understand block-level and feature-level restrictions without reconstructing them from UI state.
+Earlier drafts of this document also described `originalMetadata` / `originalSettings`; current exports carry that information in `site.settings` and `site.platform` instead.
 
 ### Suggested Skeleton API adjustments for clearer JOS/PRAW interoperability
 
 These are recommended improvements to keep Skeleton API data easier to ingest and reason about:
 
-1. **Promote platform metadata to a first-class top-level field**
-   - Add optional top-level `platform` in skeleton payloads.
-   - Keep `_skeleton.originalMetadata.platform` as compatibility source during transition.
+1. **Promote platform metadata to a first-class field** — *done as `site.platform`* in current generator output; readers should still check `_skeleton.originalMetadata.platform` for older exports.
 2. **Document a normalized platform schema**
    - Canonical shape: `{ audience, features, allowedBlocks }`.
    - Keep legacy read support for `{ delete, blocks }` but avoid writing legacy keys in new skeletons.
@@ -251,7 +312,7 @@ These are recommended improvements to keep Skeleton API data easier to ingest an
 4. **Document metadata pass-through expectations explicitly**
    - Clarify that site creation and manifest editing should preserve `metadata.platform` rather than dropping or flattening it.
    - Clarify that block restrictions should be interpreted from platform metadata, not inferred heuristically.
-5. **Version extension blocks**
+5. **Version extension blocks** (still open; `meta.version` versions the skeleton content, not the format)
    - Add explicit versioning guidance for `_skeleton` and any top-level `platform` block so ingestion tools can branch safely over time.
 
 ### HTTP endpoints
@@ -288,7 +349,7 @@ Returns the list of available skeletons visible to the current user.
 }
 ```
 
-Each item in `data` is derived from the corresponding skeleton file's `meta` block. The `skeleton-url` field provides a ready-to-use URL for fetching the full skeleton JSON (see `getSkeleton` below). The list intentionally excludes internal fallback skeletons such as `default-starter`.
+Each item in `data` is derived from the corresponding skeleton file's `meta` block, except `machineName`, which is the normalized file name. The `skeleton-url` field provides a ready-to-use URL for fetching the full skeleton JSON (see `getSkeleton` below). The list intentionally excludes internal fallback skeletons such as `default-starter`.
 
 #### `GET /getSkeleton`
 
@@ -296,7 +357,7 @@ Returns the full JSON definition of a single skeleton.
 
 **Query parameters**
 
-- `name` – required skeleton file key (usually the `meta.name` value, without the `.json` extension).
+- `name` – required. Matched against the file name (without `.json`), `meta.machineName` and `meta.name`.
 - `user_token` – required request token for the active user.
 
 **Response shape (success)**

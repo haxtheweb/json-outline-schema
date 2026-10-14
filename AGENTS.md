@@ -2,6 +2,16 @@
 
 This file provides comprehensive instructions for AI coding agents working within the HAX ecosystem. HAX (Headless Authoring eXperience) is a comprehensive web development ecosystem that enables rapid creation of accessible, performant web components and static sites. Follow these guidelines to set up, develop, test, and contribute effectively to HAX projects.
 
+## This repository (json-outline-schema)
+
+Repo-specific notes; the rest of this file is the shared ecosystem guide.
+
+- **What lives here:** the JSON Outline Schema spec (README.md), machine-readable JSON Schemas in `schema/`, a validator in `scripts/validate.js`, and examples in `example.json` + `examples/`.
+- **Pick the right schema:** `schema/json-outline-schema.schema.json` for any outline, `schema/haxcms-site.schema.json` for a HAXcms `site.json`, `schema/skeleton.schema.json` for a site skeleton.
+- **Validate before you hand back an edited outline:** `node scripts/validate.js <file>` (add `--json` for a structured report). `npm test` must pass after changing a schema or example.
+- **Read "Rules for tools and agents that write outlines" in README.md** before editing any `site.json`.
+- **Keep prose and schema in sync:** a change to a documented field means editing README.md and the matching file in `schema/` in the same PR, and adding or updating an example. HAXcms behavior is the source of truth (`haxcms-nodejs` / `haxcms-php` `JSONOutlineSchema*`, `haxcms-site-store.js` in webcomponents); cite the file when documenting new behavior.
+
 ## HAX Ecosystem Overview
 
 The HAX ecosystem consists of multiple interconnected repositories, each serving specific purposes:
