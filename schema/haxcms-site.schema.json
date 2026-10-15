@@ -16,15 +16,16 @@
   },
   "$defs": {
     "booleanLike": {
-      "description": "Canonical form is a JSON boolean. Older HAXcms data stores flags as \"1\" / \"0\" / \"\" strings; readers should treat \"1\" and \"true\" as true and \"\", \"0\", \"false\" as false.",
+      "description": "Canonical form is a JSON boolean, and HAXcms should write booleans. Older data stores flags as \"1\" / \"0\" / \"\" strings or 1 / 0; readers should treat \"1\", 1 and \"true\" as true and \"\", \"0\", 0 and \"false\" as false. Legacy forms are accepted for reading only (the validator warns on them).",
       "oneOf": [
         { "type": "boolean" },
         { "type": "string", "enum": ["", "0", "1", "true", "false"] },
+        { "type": "integer", "enum": [0, 1] },
         { "type": "null" }
       ]
     },
     "timestamp": {
-      "description": "Unix timestamp in seconds. Canonical form is an integer; numeric strings appear in older data.",
+      "description": "Unix timestamp in seconds. Canonical form is an integer; numeric strings appear in older data and are accepted for reading only.",
       "oneOf": [
         { "type": "integer", "minimum": 0 },
         { "type": "string", "pattern": "^[0-9]+$" }
@@ -60,10 +61,22 @@
         "created": { "$ref": "#/$defs/timestamp" },
         "updated": { "$ref": "#/$defs/timestamp" },
         "tags": {
-          "description": "Page tags. site.json uses a comma-separated string; skeleton items use an array.",
+          "description": "Page tags. Canonical form is an array of strings. The editor currently collects tags as a comma-separated list; older site.json files store that raw string, which is accepted for reading only.",
           "oneOf": [
-            { "type": "string" },
-            { "type": "array", "items": { "type": "string" } }
+            { "type": "array", "items": { "type": "string" } },
+            { "type": "string", "deprecated": true }
+          ]
+        },
+        "pageType": {
+          "description": "What kind of page this is, for example `Lesson`, `Quiz` or `Assessment`. Primarily used to map pages onto OER Schema classes (https://oerschema.org/).",
+          "type": "string",
+          "examples": ["Lesson", "Quiz", "Assessment", "Activity", "Unit", "Module"]
+        },
+        "relatedItems": {
+          "description": "Non-hierarchical relationships to other items in this outline (\"people who read this also read\"), as item ids. Canonical form is an array of ids; a single id string appears in older data. Hierarchy itself is always `parent`.",
+          "oneOf": [
+            { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+            { "type": "string", "deprecated": true }
           ]
         },
         "icon": { "description": "Icon identifier (`iconset:name`, for example `icons:book`) used by themes in menus.", "type": "string" },
@@ -120,7 +133,7 @@
         "lang": { "description": "Default language code (for example `en`).", "type": "string" },
         "domain": { "description": "Public domain the site is published to, if any.", "type": "string" },
         "homePageId": { "description": "`id` of the item used as the home page.", "type": "string" },
-        "tags": { "description": "Comma-separated site tags.", "type": "string" },
+        "tags": { "description": "Site tags. Canonical form is an array of strings; a comma-separated string is accepted for reading older data.", "oneOf": [ { "type": "array", "items": { "type": "string" } }, { "type": "string", "deprecated": true } ] },
         "created": { "$ref": "#/$defs/timestamp" },
         "updated": { "$ref": "#/$defs/timestamp" },
         "version": { "description": "HAXcms version that last wrote the site.", "type": "string" },

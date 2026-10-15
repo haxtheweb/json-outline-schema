@@ -4,7 +4,7 @@
 
 New to the HAX ecosystem? **[Start here](https://github.com/haxtheweb/issues/blob/master/CONTRIBUTING.md)** — the single onboarding guide covers prerequisites, cloning the core repos, installing, and running each project locally.
 
-JSON Outline Schema is a standard way of expressing and storing the relation between objects. It gives you a simple way of linking data together to form an outline of related concepts / entities. Here is an example of a JSON Outline schema entity:
+JSON Outline Schema is a standard way of expressing and storing the relation between objects. It was designed for, and is implemented by, [HAXcms](https://github.com/haxtheweb/haxcms-nodejs): a HAXcms `site.json` is a JSON Outline Schema document, so this repository documents both the core spec and the HAXcms conventions layered on it. It gives you a simple way of linking data together to form an outline of related concepts / entities. Here is an example of a JSON Outline schema entity:
 ```json
 {
   "id": "unique-id-of-the-item-1",
@@ -97,7 +97,17 @@ The prose in this README is backed by [JSON Schema (draft 2020-12)](https://json
 | [`schema/haxcms-site.schema.json`](schema/haxcms-site.schema.json) | A HAXcms `site.json` (core + the `metadata` conventions below) |
 | [`schema/skeleton.schema.json`](schema/skeleton.schema.json) | A HAXcms site skeleton (see [Skeleton API](#skeleton-api)) |
 
-JSON Schema cannot express cross-item rules, so `scripts/validate.js` adds them: unique `id`s, `parent` pointing at a real item, no parent cycles, unique `slug`s, plus warnings for `indent` that disagrees with tree depth, repeated sibling `order`, string-typed numbers, and non-standard `location` paths.
+JSON Schema cannot express cross-item rules, so `scripts/validate.js` adds them: unique `id`s, `parent` pointing at a real item, no parent cycles, unique `slug`s, plus warnings for `indent` that disagrees with tree depth, repeated sibling `order`, legacy value forms (string numbers, `"1"`/`""` flags, comma-separated `tags`), `relatedItems` that point nowhere, and non-standard `location` paths.
+
+From npm (no install needed):
+
+```bash
+npx -p @haxtheweb/json-outline-schema-spec jos-validate path/to/site.json
+```
+
+The schemas ship in the package too (`@haxtheweb/json-outline-schema-spec/schema/haxcms-site.schema.json`, ...) for tools that validate in-process.
+
+From a clone:
 
 ```bash
 npm install
@@ -107,17 +117,17 @@ node scripts/validate.js --json site.json               # machine-readable repor
 npm test                                                # self-test against examples/
 ```
 
-Examples: [`example.json`](example.json) (HAXcms site), [`examples/minimal.json`](examples/minimal.json) (smallest valid outline), [`examples/skeleton.json`](examples/skeleton.json), and [`examples/invalid/`](examples/invalid) (one file per mistake the validator catches).
+Examples: [`example.json`](example.json) (HAXcms site), [`examples/minimal.json`](examples/minimal.json) (smallest valid outline), [`examples/skeleton.json`](examples/skeleton.json), [`examples/legacy-values.json`](examples/legacy-values.json) (older value forms that are still readable but should never be written), and [`examples/invalid/`](examples/invalid) (one file per mistake the validator catches).
 
 ## Rules for tools and agents that write outlines
 
 These are the things that most often go wrong when a program (or an AI agent) edits `site.json` by hand:
 
-1. **The tree is `parent` + `order`, nothing else.** Top-level items have `"parent": null`. `order` is a 0-based integer among siblings. Array position and `indent` are not authoritative.
-2. **Keep `indent` equal to depth** (0 for top level) when you add or move items, so themes render consistently.
+1. **The tree is `parent` + `order`, nothing else.** Top-level items have `"parent": null` (not `""`). `order` is a 0-based integer among siblings. Array position and `indent` are not authoritative.
+2. **Keep `indent` equal to depth** (0 for top level) when you add or move items. `indent` may intentionally differ from depth when an outline wants a different presentation than its hierarchy (for example, sibling pages shown at different indents), but that is rare; never introduce drift unless asked.
 3. **Every `id` and every `slug` must be unique.** Never reuse an id after deleting an item.
 4. **Do not invent item keys.** HAXcms keeps only `id`, `indent`, `location`, `slug`, `order`, `parent`, `title`, `description` and `metadata`; anything else (for example `content`) is silently dropped on the next save. Page HTML lives in the file at `location` (HAXcms: `pages/<id>/index.html`).
-5. **Write canonical types:** integers for `indent` / `order` / timestamps, booleans for flags such as `metadata.published` and `metadata.hideInMenu`. Readers must still accept the legacy string forms (`"1"`, `""`) found in older sites.
+5. **Write canonical types:** integers for `indent` / `order` / timestamps, `true` / `false` for flags such as `metadata.published` and `metadata.hideInMenu` (never `"1"`, `1` or `""`), and arrays for `tags` and `relatedItems`. HAXcms normalizes to these forms on save; readers must still accept the legacy forms found in older sites.
 6. **Prefer the HAX CLI or HAXcms endpoints** over hand edits when they are available; they also update `pages/`, regenerate computed metadata, and rebuild derived files. Validate with `scripts/validate.js` after any hand edit.
 
 ## HAXcms metadata conventions layered on JSON Outline Schema
@@ -130,7 +140,8 @@ Holds site-level information and operational settings used by HAXcms:
 
 - `name` - machine name for the site (folder / instance alignment).
 - `created` / `updated` - unix timestamps.
-- `logo`, `domain`, `tags`, `homePageId` - common site metadata values.
+- `logo`, `domain`, `homePageId` - common site metadata values.
+- `tags` - array of strings (older sites store a comma-separated string).
 - `settings` - feature flags and runtime behavior (for example `lang`, `publishPagesOn`, `canonical`, `pathauto`, `private`, `sw`, `forceUpgrade`, `gaID`).
 - `git` - optional publishing/deployment information.
 
@@ -176,7 +187,9 @@ Per-page keys HAXcms reads and writes:
 - `hideInMenu` - keep the page out of navigation but reachable by URL.
 - `locked` - prevent editing in the HAX editor.
 - `created` / `updated` - unix timestamps (seconds).
-- `tags` - comma-separated string (arrays in skeletons).
+- `tags` - array of strings. The editor collects tags as a comma-separated list and converts it to an array; older sites store the raw string.
+- `pageType` - what kind of page this is (for example `Lesson`, `Quiz`, `Assessment`). Primarily used to map pages onto [OER Schema](https://oerschema.org/) classes.
+- `relatedItems` - array of item ids for non-hierarchical relationships ("people who read this also read"). Hierarchy is always `parent`; `relatedItems` never implies nesting or order.
 - `icon`, `image` - menu icon (`iconset:name`) and featured image.
 - `theme` - per-page theme override, same shape as `metadata.theme`.
 - `overridePathauto` - keep this page's slug even when `settings.pathauto` is on.

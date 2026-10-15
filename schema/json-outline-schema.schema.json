@@ -66,7 +66,7 @@
           "type": "string"
         },
         "parent": {
-          "description": "`id` of the parent item, or null for a top-level item. Canonical form is null; an empty string is accepted because it is the HAXcms in-memory default.",
+          "description": "`id` of the parent item, or `null` for a top-level item. `null` is canonical; an empty string is accepted only as a legacy form for reading older data and should not be written.",
           "oneOf": [
             { "type": "null" },
             { "type": "string" }
@@ -77,7 +77,7 @@
           "$ref": "#/$defs/integerLike"
         },
         "indent": {
-          "description": "Visual indentation level. Canonical form: integer equal to the item's depth in the tree (0 = top level). Consumers SHOULD derive hierarchy from `parent`, not from `indent`; it is a display hint that can drift.",
+          "description": "Visual indentation level (integer, 0 = top level). In a typical outline it equals the item's depth in the tree. It MAY intentionally differ when an outline wants a different presentation than its hierarchy (for example, sibling pages displayed at different indents), but that is rare. Consumers MUST derive hierarchy from `parent`, never from `indent`.",
           "$ref": "#/$defs/integerLike"
         },
         "location": {

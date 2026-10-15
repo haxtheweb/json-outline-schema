@@ -15,7 +15,11 @@
         "lang": "en-US",
         "publishPagesOn": true,
         "canonical": true
-      }
+      },
+      "tags": [
+        "example",
+        "outline"
+      ]
     },
     "theme": {
       "element": "clean-one",
@@ -94,7 +98,15 @@
       "description": "A description at a glance of this item potentially",
       "metadata": {
         "published": true,
-        "hideInMenu": false
+        "hideInMenu": false,
+        "pageType": "Lesson",
+        "tags": [
+          "outline",
+          "example"
+        ],
+        "relatedItems": [
+          "item-2"
+        ]
       }
     }
   ]

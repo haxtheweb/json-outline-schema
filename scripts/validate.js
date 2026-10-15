@@ -103,7 +103,7 @@ function referentialChecks (items, type) {
     if (depth < 0) {
       errors.push({ path: `${base}/${i}/parent`, message: `parent chain of "${item.id}" contains a cycle` })
     } else if (typeof item.indent !== 'undefined' && Number(item.indent) !== depth) {
-      warnings.push({ path: `${base}/${i}/indent`, message: `indent ${JSON.stringify(item.indent)} does not match tree depth ${depth}` })
+      warnings.push({ path: `${base}/${i}/indent`, message: `indent ${JSON.stringify(item.indent)} does not match tree depth ${depth}; fine if intentional (presentation differs from hierarchy), otherwise set indent to ${depth}` })
     }
     if (typeof item.indent === 'string' || typeof item.order === 'string') {
       warnings.push({ path: `${base}/${i}`, message: 'indent/order should be integers, not strings' })
@@ -137,6 +137,33 @@ function referentialChecks (items, type) {
       }
     }
   }
+  // canonical value types in item metadata (legacy forms are readable, not writable)
+  if (type === 'site' || type === 'skeleton') {
+    const flags = ['published', 'hideInMenu', 'locked']
+    items.forEach((item, i) => {
+      const m = item && item.metadata
+      if (!m || typeof m !== 'object') return
+      for (const k of flags) {
+        if (typeof m[k] !== 'undefined' && m[k] !== null && typeof m[k] !== 'boolean') {
+          warnings.push({ path: `${base}/${i}/metadata/${k}`, message: `${JSON.stringify(m[k])} should be a boolean (true/false)` })
+        }
+      }
+      for (const k of ['created', 'updated']) {
+        if (typeof m[k] === 'string') warnings.push({ path: `${base}/${i}/metadata/${k}`, message: 'timestamp should be an integer, not a string' })
+      }
+      if (typeof m.tags === 'string') {
+        warnings.push({ path: `${base}/${i}/metadata/tags`, message: 'tags should be an array of strings, not a comma-separated string' })
+      }
+      if (typeof m.relatedItems !== 'undefined') {
+        const related = typeof m.relatedItems === 'string' ? [m.relatedItems] : Array.isArray(m.relatedItems) ? m.relatedItems : []
+        if (typeof m.relatedItems === 'string') warnings.push({ path: `${base}/${i}/metadata/relatedItems`, message: 'relatedItems should be an array of item ids, not a string' })
+        related.forEach((id) => {
+          if (typeof id === 'string' && id !== '' && !byId.has(id)) warnings.push({ path: `${base}/${i}/metadata/relatedItems`, message: `related item "${id}" does not match any item id` })
+          if (id === item.id) warnings.push({ path: `${base}/${i}/metadata/relatedItems`, message: 'item lists itself as related' })
+        })
+      }
+    })
+  }
   // HAXcms location convention
   if (type === 'site') {
     items.forEach((item, i) => {
@@ -146,6 +173,17 @@ function referentialChecks (items, type) {
     })
   }
   return { errors, warnings }
+}
+
+/** Document-level canonical-form checks for HAXcms site.json. */
+function siteChecks (doc) {
+  const warnings = []
+  const site = doc && doc.metadata && doc.metadata.site
+  if (site && typeof site.tags === 'string') warnings.push({ path: '/metadata/site/tags', message: 'tags should be an array of strings, not a comma-separated string' })
+  for (const k of ['created', 'updated']) {
+    if (site && typeof site[k] === 'string') warnings.push({ path: `/metadata/site/${k}`, message: 'timestamp should be an integer, not a string' })
+  }
+  return warnings
 }
 
 function validateDoc (doc, type, validators) {
@@ -159,7 +197,8 @@ function validateDoc (doc, type, validators) {
     }))
   const items = type === 'skeleton' ? doc && doc.build && doc.build.items : doc && doc.items
   const ref = referentialChecks(items, type)
-  return { errors: errors.concat(ref.errors), warnings: ref.warnings }
+  const warnings = type === 'site' ? siteChecks(doc).concat(ref.warnings) : ref.warnings
+  return { errors: errors.concat(ref.errors), warnings }
 }
 
 function main (argv) {
