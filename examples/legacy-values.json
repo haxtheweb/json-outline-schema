@@ -1,0 +1,46 @@
+{
+  "id": "legacy-values-example",
+  "title": "Legacy value forms (readable, never write these)",
+  "metadata": {
+    "site": {
+      "name": "legacy",
+      "created": "1422799200",
+      "updated": "1422799200",
+      "tags": "one, two"
+    }
+  },
+  "items": [
+    {
+      "id": "item-a",
+      "indent": "0",
+      "location": "pages/item-a/index.html",
+      "slug": "a",
+      "order": "0",
+      "parent": "",
+      "title": "A",
+      "description": "",
+      "metadata": {
+        "published": "1",
+        "hideInMenu": "",
+        "locked": 0,
+        "created": "1422799200",
+        "tags": "intro, welcome",
+        "relatedItems": "item-b"
+      }
+    },
+    {
+      "id": "item-b",
+      "indent": 0,
+      "location": "pages/item-b/index.html",
+      "slug": "a/b",
+      "order": 0,
+      "parent": "item-a",
+      "title": "B",
+      "description": "",
+      "metadata": {
+        "published": true,
+        "hideInMenu": false
+      }
+    }
+  ]
+}
