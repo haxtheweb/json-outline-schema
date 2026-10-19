@@ -389,3 +389,7 @@ Returns the full JSON definition of a single skeleton.
 ```
 
 If the `user_token` is invalid or missing, both endpoints return a 403-style response. If the named skeleton cannot be found, `getSkeleton` returns a 404-style response. Implementations search both core skeleton definitions (for example `coreConfig/skeletons`) and site-specific overrides (for example `_config/skeletons`) when resolving a skeleton file.
+
+## Releasing
+
+This package is versioned with the rest of the HAX ecosystem and is published by the ubiquity release (`scripts/ubiquity-push.sh` in haxtheweb/webcomponents), which runs `commit-and-tag-version --release-as <ecosystem version>`, pushes the tag and runs `npm publish`. To cut a release of just this package, run `npm run release` (tests, bumps the version and CHANGELOG, tags, pushes to `master`, publishes).
