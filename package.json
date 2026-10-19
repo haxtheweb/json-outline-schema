@@ -1,6 +1,6 @@
 {
   "name": "@haxtheweb/json-outline-schema-spec",
-  "version": "0.1.0",
+  "version": "26.8.1",
   "description": "JSON Schema definitions and a validator for JSON Outline Schema, HAXcms site.json and HAXcms skeletons",
   "keywords": [
     "json-outline-schema",
@@ -39,10 +39,14 @@
   },
   "scripts": {
     "validate": "node scripts/validate.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "release": "npm test && commit-and-tag-version && git push --follow-tags origin master && npm publish"
   },
   "dependencies": {
     "ajv": "^8.17.1"
+  },
+  "devDependencies": {
+    "commit-and-tag-version": "12.7.3"
   },
   "publishConfig": {
     "access": "public"
