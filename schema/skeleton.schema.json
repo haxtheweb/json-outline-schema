@@ -42,6 +42,15 @@
         "platform": {
           "description": "Copied into `metadata.platform` of the new site.",
           "$ref": "haxcms-site.schema.json#/$defs/platform"
+        },
+        "plugins": {
+          "description": "Plugins to enable on a site created from this skeleton. A starting point only: later changes to the skeleton do not affect sites already made from it. See the HAXcms plugin specification, https://github.com/haxtheweb/haxcms-plugin-examples/pull/1.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+          }
         }
       }
     },

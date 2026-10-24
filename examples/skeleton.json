@@ -23,7 +23,8 @@
       "audience": "novice",
       "features": { "deletePage": false, "outlineDesigner": false },
       "allowedBlocks": ["media-image", "video-player", "a11y-collapse"]
-    }
+    },
+    "plugins": ["comments"]
   },
   "build": {
     "type": "skeleton",
