@@ -45,8 +45,10 @@ check('examples/legacy-values.json', true, [], [
 check('examples/invalid/missing-parent.json', false, ['does not match any item id'])
 check('examples/invalid/cycle-and-duplicates.json', false, ['duplicate id', 'duplicate slug', 'cycle'])
 check('examples/invalid/haxcms-unknown-item-key.json', false, ['"content"', 'novice, expert'])
+check('examples/invalid/skeleton-bad-plugin-id.json', false, ['must match pattern'])
+check('examples/invalid/haxcms-bad-plugin-values.json', false, ['must match pattern', 'must be object'])
 
-if (fs.readdirSync(path.join(root, 'examples', 'invalid')).length !== 3) {
+if (fs.readdirSync(path.join(root, 'examples', 'invalid')).length !== 5) {
   failures++
   console.log('FAIL examples/invalid has files without an expectation in scripts/test.js')
 }

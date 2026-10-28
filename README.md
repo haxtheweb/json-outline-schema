@@ -117,7 +117,7 @@ node scripts/validate.js --json site.json               # machine-readable repor
 npm test                                                # self-test against examples/
 ```
 
-Examples: [`example.json`](example.json) (HAXcms site), [`examples/minimal.json`](examples/minimal.json) (smallest valid outline), [`examples/skeleton.json`](examples/skeleton.json), [`examples/legacy-values.json`](examples/legacy-values.json) (older value forms that are still readable but should never be written), and [`examples/invalid/`](examples/invalid) (one file per mistake the validator catches).
+Examples: [`example.json`](example.json) (HAXcms site), [`examples/minimal.json`](examples/minimal.json) (smallest valid outline), [`examples/skeleton.json`](examples/skeleton.json), [`examples/legacy-values.json`](examples/legacy-values.json) (older value forms that are still readable but should never be written), and [`examples/invalid/`](examples/invalid) (one file per mistake the validator catches). `examples/skeleton.json` also shows `site.plugins`, and `example.json` shows plugin values on a page (`metadata.plugins`).
 
 ## Rules for tools and agents that write outlines
 
@@ -193,6 +193,7 @@ Per-page keys HAXcms reads and writes:
 - `icon`, `image` - menu icon (`iconset:name`) and featured image.
 - `theme` - per-page theme override, same shape as `metadata.theme`.
 - `overridePathauto` - keep this page's slug even when `settings.pathauto` is on.
+- `plugins` - values plugins keep on this page, one object per plugin id (`metadata.plugins.reading-time.minutes`). The site's own `metadata.plugins` works the same way. Each plugin declares its fields and HAXcms drops undeclared ones on save; data of a plugin that is not installed is left alone. Defined by the HAXcms plugin specification (https://github.com/haxtheweb/haxcms-plugin-examples/pull/1, spec/04).
 - Computed on save (writers can omit): `readtime`, `images`, `videos`, `files`, `contentDetails`.
 
 ### `metadata.node`
@@ -269,6 +270,7 @@ Provides initial HAXcms site configuration:
 - `theme` – HAXcms theme identifier to apply to the generated site.
 - `settings` – optional; copied into `metadata.site.settings` of the new site.
 - `platform` – optional; copied into `metadata.platform` of the new site (same `{ audience, features, allowedBlocks }` model described above).
+- `plugins` – optional array of plugin ids (lowercase, dash-separated) to enable on a site created from this skeleton, for example a blog skeleton enabling comments. A starting point only: changing or removing the skeleton later has no effect on sites made from it. Defined by the HAXcms plugin specification (https://github.com/haxtheweb/haxcms-plugin-examples/pull/1).
 
 #### `build`
 

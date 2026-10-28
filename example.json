@@ -70,7 +70,8 @@
       "metadata": {
         "icon": "icons:view-quilt",
         "published": true,
-        "hideInMenu": false
+        "hideInMenu": false,
+        "plugins": { "reading-time": { "words": 410, "minutes": 2 } }
       }
     },
     {

@@ -87,7 +87,8 @@
         "videos": { "description": "(computed) Videos referenced in the page content.", "type": "array" },
         "files": { "description": "(computed) Files referenced in the page content.", "type": "array" },
         "contentDetails": { "description": "(computed) Content statistics (element / heading / paragraph counts, schema references).", "type": "object" },
-        "overridePathauto": { "description": "Keep the stored slug even when the site has `settings.pathauto` enabled.", "type": "boolean" }
+        "overridePathauto": { "description": "Keep the stored slug even when the site has `settings.pathauto` enabled.", "type": "boolean" },
+        "plugins": { "$ref": "#/$defs/pluginValues" }
       }
     },
     "siteMetadata": {
@@ -121,8 +122,15 @@
             "structure": { "type": "string" },
             "type": { "type": "string" }
           }
-        }
+        },
+        "plugins": { "$ref": "#/$defs/pluginValues" }
       }
+    },
+    "pluginValues": {
+      "description": "Values plugins keep on this record, one object per plugin id (`metadata.plugins.<plugin id>`). Each plugin declares its fields; HAXcms drops undeclared ones on save and leaves data of uninstalled plugins alone. See the HAXcms plugin specification, https://github.com/haxtheweb/haxcms-plugin-examples/pull/1 (spec/04).",
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
+      "additionalProperties": { "type": "object" }
     },
     "site": {
       "description": "Site-level information and operational settings.",
