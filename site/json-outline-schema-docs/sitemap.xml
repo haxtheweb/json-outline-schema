@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://localhost/json-outline-schema-docs/overview</loc>
+    <lastmod>2026-10-30T15:37:09.000Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://localhost/json-outline-schema-docs/outline-structure</loc>
+    <lastmod>2026-10-30T15:45:19.000Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://localhost/json-outline-schema-docs/haxcms-metadata-conventions</loc>
+    <lastmod>2026-10-30T15:45:20.000Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://localhost/json-outline-schema-docs/skeleton-api</loc>
+    <lastmod>2026-10-30T15:45:21.000Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://localhost/json-outline-schema-docs/skeleton-api-http-endpoints</loc>
+    <lastmod>2026-10-30T15:45:22.000Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

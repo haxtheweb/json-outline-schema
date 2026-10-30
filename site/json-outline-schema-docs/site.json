@@ -1,0 +1,158 @@
+{
+  "id": "036ffbd5-4dd9-47d5-9dc2-9cf99eec68e7",
+  "title": "JSON Outline Schema",
+  "author": "",
+  "description": "Documentation for the JSON Outline Schema used by HAXcms for content structure, site navigation, metadata, and the Skeleton API.",
+  "license": "by-sa",
+  "metadata": {
+    "author": {},
+    "site": {
+      "name": "json-outline-schema-docs",
+      "logo": "assets/banner.jpg",
+      "settings": {
+        "lang": "en-US",
+        "publishPagesOn": true,
+        "canonical": true,
+        "pathauto": true
+      },
+      "created": 1793374629,
+      "updated": 1793374629,
+      "git": {
+        "vendor": "github",
+        "branch": "gh-pages"
+      }
+    },
+    "theme": {
+      "element": "clean-one",
+      "path": "@haxtheweb/clean-one/clean-one.js",
+      "name": "Clean One",
+      "thumbnail": "@haxtheweb/haxcms-elements/lib/theme-screenshots/theme-clean-one-thumb.jpg",
+      "description": "Start with a blank site using the Clean One",
+      "category": [
+        "Course"
+      ],
+      "hidden": false,
+      "priority": -2,
+      "terrible": false,
+      "supportedPalettes": [
+        "4",
+        "5"
+      ],
+      "variables": {
+        "icon": "icons:book",
+        "hexCode": "#1e407c",
+        "cssVariable": "--ddd-primary-1"
+      }
+    },
+    "node": {
+      "fields": {}
+    },
+    "platform": {
+      "audience": "expert",
+      "features": {},
+      "allowedBlocks": []
+    },
+    "build": {
+      "version": "26.8.0",
+      "structure": "course",
+      "type": "own"
+    }
+  },
+  "items": [
+    {
+      "id": "item-b14cea04-e86b-4a9b-acb5-e3a62addc256",
+      "indent": 0,
+      "location": "pages/item-b14cea04-e86b-4a9b-acb5-e3a62addc256/index.html",
+      "slug": "overview",
+      "order": 0,
+      "parent": null,
+      "title": "Overview",
+      "description": "",
+      "metadata": {
+        "created": 1793374629,
+        "updated": 1793374629,
+        "overridePathauto": true
+      }
+    },
+    {
+      "id": "item-b1b925a6-359b-4f79-8083-a8653895d165",
+      "indent": 0,
+      "location": "pages/item-b1b925a6-359b-4f79-8083-a8653895d165/index.html",
+      "slug": "outline-structure",
+      "order": 1,
+      "parent": null,
+      "title": "Outline Structure",
+      "description": "",
+      "metadata": {
+        "created": 1793375119,
+        "updated": 1793375119,
+        "images": [],
+        "videos": []
+      }
+    },
+    {
+      "id": "item-c39afca9-ddc8-4f36-b3b2-3d9ebe5c1317",
+      "indent": 0,
+      "location": "pages/item-c39afca9-ddc8-4f36-b3b2-3d9ebe5c1317/index.html",
+      "slug": "haxcms-metadata-conventions",
+      "order": 2,
+      "parent": null,
+      "title": "HAXcms Metadata Conventions",
+      "description": "",
+      "metadata": {
+        "created": 1793375120,
+        "updated": 1793375120,
+        "images": [],
+        "videos": []
+      }
+    },
+    {
+      "id": "item-e7d6a123-af0d-4d55-bb12-6098d7d3e75a",
+      "indent": 0,
+      "location": "pages/item-e7d6a123-af0d-4d55-bb12-6098d7d3e75a/index.html",
+      "slug": "skeleton-api",
+      "order": 3,
+      "parent": null,
+      "title": "Skeleton API",
+      "description": "",
+      "metadata": {
+        "created": 1793375121,
+        "updated": 1793375121,
+        "images": [],
+        "videos": []
+      }
+    },
+    {
+      "id": "item-fc8047c6-e289-4ede-a392-58f6d5ae183a",
+      "indent": 0,
+      "location": "pages/item-fc8047c6-e289-4ede-a392-58f6d5ae183a/index.html",
+      "slug": "skeleton-api-http-endpoints",
+      "order": 4,
+      "parent": null,
+      "title": "Skeleton API HTTP Endpoints",
+      "description": "",
+      "metadata": {
+        "created": 1793375122,
+        "updated": 1793375122,
+        "images": [],
+        "videos": []
+      }
+    },
+    {
+      "id": "item-dcbb4d3e-7739-4ca6-ba07-abd75defd0c0",
+      "indent": 0,
+      "location": "pages/item-dcbb4d3e-7739-4ca6-ba07-abd75defd0c0/index.html",
+      "slug": "more-schemas",
+      "order": 5,
+      "parent": null,
+      "title": "More Schemas",
+      "description": "",
+      "metadata": {
+        "created": 1793375123,
+        "updated": 1793375123,
+        "images": [],
+        "videos": []
+      }
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 # JSON Outline Schema
 
+📖 **[Browse the rendered docs](https://haxtheweb.github.io/json-outline-schema/)** — this README's content, chunked into a navigable HAXsite (once GitHub Pages is enabled for this repo).
+
 ## Onboarding
 
 New to the HAX ecosystem? **[Start here](https://github.com/haxtheweb/issues/blob/master/CONTRIBUTING.md)** — the single onboarding guide covers prerequisites, cloning the core repos, installing, and running each project locally.

@@ -1,0 +1,26 @@
+# JSON Outline Schema
+
+> Documentation for the JSON Outline Schema used by HAXcms for content structure, site navigation, metadata, and the Skeleton API.
+
+HAXcms is a file-based CMS: authored pages and metadata are stored as portable files, not locked into a database-only workflow.
+The canonical site structure is `site.json`, represented in JSON Outline Schema (`id`, `parent`, `order`, `slug`, `location`, and `metadata`).
+Use HAX CLI and ecosystem tooling to maintain human-authored content while keeping machine-readable outputs synchronized.
+Managed files (feeds, search indexes, manifests, and this `llms.txt`) are generated artifacts and should be rebuilt by tooling.
+
+## Core resources
+- [site.json](https://localhost/json-outline-schema-docs/site.json): Canonical site manifest and navigation tree in JSON Outline Schema format.
+- [llms.txt](https://localhost/json-outline-schema-docs/llms.txt): LLM-oriented guide to this site and its machine-readable resources.
+
+## Pages
+- [Overview](https://localhost/json-outline-schema-docs/pages/item-b14cea04-e86b-4a9b-acb5-e3a62addc256/index.md)
+- [Outline Structure](https://localhost/json-outline-schema-docs/pages/item-b1b925a6-359b-4f79-8083-a8653895d165/index.md)
+- [HAXcms Metadata Conventions](https://localhost/json-outline-schema-docs/pages/item-c39afca9-ddc8-4f36-b3b2-3d9ebe5c1317/index.md)
+- [Skeleton API](https://localhost/json-outline-schema-docs/pages/item-e7d6a123-af0d-4d55-bb12-6098d7d3e75a/index.md)
+- [Skeleton API HTTP Endpoints](https://localhost/json-outline-schema-docs/pages/item-fc8047c6-e289-4ede-a392-58f6d5ae183a/index.md)
+
+## Optional
+- [Search index](https://localhost/json-outline-schema-docs/lunrSearchIndex.json): Lunr corpus for quick full-text retrieval.
+- [RSS feed](https://localhost/json-outline-schema-docs/rss.xml): Site updates in RSS format.
+- [Atom feed](https://localhost/json-outline-schema-docs/atom.xml): Site updates in Atom format.
+- [Sitemap](https://localhost/json-outline-schema-docs/sitemap.xml): URL-level discovery map for the published site.
+- [Agent skills](https://localhost/json-outline-schema-docs/.well-known/agent-skills/index.json): Agent Skills discovery index (agentskills.io v0.2.0) listing skills that teach an agent how to read, author, audit, and remix this site.

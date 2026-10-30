@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<item>
+<id>item-b14cea04-e86b-4a9b-acb5-e3a62addc256</id>
+<indent>0</indent>
+<location>pages/item-b14cea04-e86b-4a9b-acb5-e3a62addc256/index.xml</location>
+<slug>overview</slug>
+<order>0</order>
+<parent></parent>
+<title>Overview</title>
+<description></description>
+<metadata>
+<created>1793374629</created>
+<updated>1793374629</updated>
+<overridePathauto>true</overridePathauto>
+</metadata>
+<content><![CDATA[<p>JSON Outline Schema (JOS) is a standard way of expressing and storing the relationship between objects. It gives you a simple way of linking data together to form an outline of related concepts and entities—title, author, description, and a flat list of items that reference one another by parent ID.</p>
+<p>HAXcms uses JOS as the backbone for every site's <code>site.json</code> manifest: the outline of pages, their order, their nesting, and a flexible <code>metadata</code> container that downstream systems (like HAXcms itself, and PRAW) layer their own conventions on top of.</p>
+<p>This documentation covers three related things:</p>
+<ul>
+  <li><a href="outline-structure">Outline Structure</a> — the core JOS entity shape, and how items link together to form a tree.</li>
+  <li><a href="haxcms-metadata-conventions">HAXcms Metadata Conventions</a> — the practical <code>metadata.site</code>, <code>metadata.theme</code>, <code>metadata.platform</code>, and <code>metadata.node</code> groups HAXcms defines on top of JOS.</li>
+  <li><a href="skeleton-api">Skeleton API</a> and <a href="skeleton-api-http-endpoints">Skeleton API HTTP Endpoints</a> — how JOS extends into reusable starter site templates ("skeletons") served over HTTP.</li>
+</ul>
+<p>New to the HAX ecosystem? <a href="https://github.com/haxtheweb/issues/blob/master/CONTRIBUTING.md">Start with the onboarding guide</a>, which covers prerequisites, cloning the core repos, installing, and running each project locally.</p>
+]]></content>
+</item>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<item>
+<id>item-c39afca9-ddc8-4f36-b3b2-3d9ebe5c1317</id>
+<indent>0</indent>
+<location>pages/item-c39afca9-ddc8-4f36-b3b2-3d9ebe5c1317/index.xml</location>
+<slug>haxcms-metadata-conventions</slug>
+<order>2</order>
+<parent></parent>
+<title>HAXcms Metadata Conventions</title>
+<description></description>
+<metadata>
+<created>1793375120</created>
+<updated>1793375120</updated>
+<images>
+</images>
+<videos>
+</videos>
+</metadata>
+<content><![CDATA[<p>JSON Outline Schema is intentionally flexible about <code>metadata</code>. In practice, HAXcms uses stable metadata groups that are important to document for interoperability (including ingest into systems like PRAW), even though these groups are not formally required by JOS itself.</p>
+<a11y-collapse heading-button="heading-button" expanded="expanded">
+  <h2 slot="heading"><code>metadata.site</code></h2>
+  <div slot="content">
+    <p>Holds site-level information and operational settings used by HAXcms:</p>
+    <ul>
+      <li><code>name</code> — machine name for the site (folder / instance alignment).</li>
+      <li><code>created</code> / <code>updated</code> — unix timestamps.</li>
+      <li><code>logo</code>, <code>domain</code>, <code>tags</code>, <code>homePageId</code> — common site metadata values.</li>
+      <li><code>settings</code> — feature flags and runtime behavior (for example <code>lang</code>, <code>publishPagesOn</code>, <code>canonical</code>, <code>pathauto</code>, <code>sw</code>, <code>forceUpgrade</code>, <code>gaID</code>).</li>
+      <li><code>git</code> — optional publishing/deployment information.</li>
+    </ul>
+  </div>
+</a11y-collapse>
+<a11y-collapse heading-button="heading-button">
+  <h2 slot="heading"><code>metadata.theme</code></h2>
+  <div slot="content">
+    <p>Describes the active theme and theme-level settings:</p>
+    <ul>
+      <li><code>element</code> — theme element tag (for example <code>clean-one</code>).</li>
+      <li><code>path</code> / <code>name</code> — theme module metadata (when present).</li>
+      <li><code>variables</code> — visual tokens like <code>hexCode</code>, <code>cssVariable</code>, <code>icon</code>, <code>image</code>, <code>imageAlt</code>, <code>imageLink</code>.</li>
+      <li><code>regions</code> — optional region-to-node mappings used by theme layouts.</li>
+      <li><code>styleGuide</code> — optional external style-guide URL (if set, HAXcms treats style-guide editing as external).</li>
+    </ul>
+  </div>
+</a11y-collapse>
+<a11y-collapse heading-button="heading-button">
+  <h2 slot="heading"><code>metadata.platform</code> (HAX editor / CMS behavior controls)</h2>
+  <div slot="content">
+    <p>Stores audience, feature toggles, and block-allow lists used to constrain editing behavior in HAXcms:</p>
+    <ul>
+      <li><code>audience</code> — currently <code>novice</code> or <code>expert</code>.</li>
+      <li><code>features</code> — boolean map of platform capabilities (for example <code>addPage</code>, <code>deletePage</code>, <code>outlineDesigner</code>, <code>styleGuide</code>, <code>insights</code>, <code>manifest</code>, <code>pageBreak</code>, <code>addBlock</code>, <code>contentMap</code>, <code>viewSource</code>, <code>onlineSearch</code>).</li>
+      <li><code>allowedBlocks</code> — array of allowed HTML tags / registered web-component tag names.</li>
+    </ul>
+    <p>Current compatibility support in HAXcms also accepts legacy keys:</p>
+    <ul>
+      <li><code>delete</code> mapped to modern <code>features.deletePage</code>.</li>
+      <li><code>blocks</code> mapped to modern <code>allowedBlocks</code>.</li>
+    </ul>
+    <p>HAXcms uses <code>metadata.platform</code> directly in editor runtime decisions:</p>
+    <ul>
+      <li>Block registration marks blocks as restricted when <code>platformAllows(tag)</code> is false.</li>
+      <li><code>features.addBlock = false</code> prevents block insertion UI actions.</li>
+      <li><code>allowedBlocks</code> filters available insertable blocks.</li>
+      <li>Required primitive text tags remain available even when block restrictions apply.</li>
+      <li>In <code>expert</code> audience mode, an empty <code>allowedBlocks</code> list defaults to allowing all blocks; in non-expert modes, block access is enforced by <code>allowedBlocks</code>.</li>
+    </ul>
+  </div>
+</a11y-collapse>
+<a11y-collapse heading-button="heading-button">
+  <h2 slot="heading"><code>metadata.node</code></h2>
+  <div slot="content">
+    <p>Used for node/page-level field configuration metadata, commonly initialized as:</p>
+    <ul>
+      <li><code>metadata.node.fields</code> — object storing node field definitions and related data.</li>
+    </ul>
+  </div>
+</a11y-collapse>
+]]></content>
+</item>

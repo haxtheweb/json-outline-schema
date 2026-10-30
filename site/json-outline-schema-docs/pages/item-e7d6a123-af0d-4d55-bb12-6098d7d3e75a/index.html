@@ -1,0 +1,110 @@
+<p>The Skeleton API builds on JSON Outline Schema to describe reusable starter "skeletons" for HAXcms sites. A skeleton is a JSON document that combines:</p>
+<ul>
+  <li>High-level metadata about the skeleton itself.</li>
+  <li>Initial HAXcms site settings (name, description, theme).</li>
+  <li>A JSON Outline Schema–style outline of pages to create.</li>
+  <li>Optional theme and visual metadata for dashboards and UIs.</li>
+</ul>
+<p>Skeleton documents are stored as JSON files (for example in HAXcms <code>coreConfig/skeletons/</code>), and are delivered over HTTP via the <code>skeletonsList</code> and <code>getSkeleton</code> endpoints — see <a href="skeleton-api-http-endpoints">Skeleton API HTTP Endpoints</a>.</p>
+<p>A typical skeleton JSON document has this top-level structure:</p>
+<code-sample type="json" copy-clipboard-button="copy-clipboard-button">
+<template>{
+  "meta": { /* skeleton metadata */ },
+  "site": { /* site-level settings */ },
+  "build": {
+    "type": "skeleton",
+    "structure": "from-skeleton",
+    "items": [ /* outline items */ ],
+    "files": []
+  },
+  "theme": { /* visual metadata for dashboards */ },
+  "_skeleton": { /* optional export metadata from site-skeleton-generator */ }
+}</template>
+</code-sample>
+<a11y-collapse heading-button="heading-button" expanded="expanded">
+  <h2 slot="heading"><code>meta</code></h2>
+  <div slot="content">
+    <p>Describes the skeleton itself and how it should appear in UIs:</p>
+    <ul>
+      <li><code>name</code> – machine-readable key used as the skeleton file name (and as the <code>name</code> query value).</li>
+      <li><code>description</code> – short description of what this skeleton is for.</li>
+      <li><code>version</code> – version of the skeleton definition.</li>
+      <li><code>created</code> – ISO 8601 timestamp of when the skeleton was created.</li>
+      <li><code>type</code> – usually <code>"skeleton"</code>.</li>
+      <li><code>useCaseTitle</code> – human-readable title shown in selectors (for example "Online Course").</li>
+      <li><code>useCaseDescription</code> – longer description for dashboards.</li>
+      <li><code>useCaseImage</code> – path/URL to a thumbnail image for this skeleton.</li>
+      <li><code>category</code> – array of category strings used for grouping/filtering.</li>
+      <li><code>tags</code> – array of tags describing the skeleton.</li>
+      <li><code>attributes</code> – optional array of additional attributes to surface in UIs.</li>
+    </ul>
+  </div>
+</a11y-collapse>
+<a11y-collapse heading-button="heading-button">
+  <h2 slot="heading"><code>site</code></h2>
+  <div slot="content">
+    <p>Provides initial HAXcms site configuration:</p>
+    <ul>
+      <li><code>name</code> – base site name (used for folder/instance naming).</li>
+      <li><code>description</code> – default description for the new site.</li>
+      <li><code>theme</code> – HAXcms theme identifier to apply to the generated site.</li>
+    </ul>
+  </div>
+</a11y-collapse>
+<a11y-collapse heading-button="heading-button">
+  <h2 slot="heading"><code>build</code></h2>
+  <div slot="content">
+    <p>Defines how to generate the site from the skeleton. This is where Skeleton API directly builds on JSON Outline Schema:</p>
+    <ul>
+      <li><code>type</code> – build type, usually <code>"skeleton"</code>.</li>
+      <li><code>structure</code> – strategy for constructing the site (for example <code>"from-skeleton"</code>).</li>
+      <li><code>items</code> – array of outline items that closely match the JSON Outline Schema leaf/page structure.</li>
+      <li><code>files</code> – optional array of additional files to create or copy into the new site.</li>
+    </ul>
+    <p>Each entry in <code>build.items</code> typically has:</p>
+    <ul>
+      <li><code>id</code> – UUID/unique ID of the element.</li>
+      <li><code>title</code> – title of the page to display.</li>
+      <li><code>slug</code> – URI portion for this resource (maps to the page URL).</li>
+      <li><code>order</code> – ordering weight relative to siblings.</li>
+      <li><code>parent</code> – ID of the parent item (or <code>null</code> for top-level pages).</li>
+      <li><code>indent</code> – visual indentation level (mirrors the JSON Outline Schema <code>indent</code> concept).</li>
+      <li><code>content</code> – initial HTML content to seed the generated page.</li>
+      <li><code>metadata</code> – arbitrary key/value data for the page (for example <code>published</code>, <code>hideInMenu</code>, <code>tags</code>).</li>
+    </ul>
+    <p>These <code>items</code> can be thought of as an extended JSON Outline Schema: they express the same outline relationships while also providing initial page content and richer per-page metadata.</p>
+  </div>
+</a11y-collapse>
+<a11y-collapse heading-button="heading-button">
+  <h2 slot="heading"><code>theme</code></h2>
+  <div slot="content">
+    <p>Provides theme-specific visual metadata used by dashboards and selection UIs:</p>
+    <ul>
+      <li><code>hexCode</code> – primary color hex code for preview tiles.</li>
+      <li><code>cssVariable</code> – CSS custom property reference for the theme color.</li>
+      <li><code>icon</code> – icon identifier representing the skeleton.</li>
+      <li><code>image</code> – path/URL to a preview image for the skeleton.</li>
+    </ul>
+  </div>
+</a11y-collapse>
+<a11y-collapse heading-button="heading-button">
+  <h2 slot="heading"><code>_skeleton</code> (optional, increasingly important for ingestion)</h2>
+  <div slot="content">
+    <p>This non-required block is currently used by HAXcms skeleton export workflows to preserve source metadata for downstream systems:</p>
+    <ul>
+      <li><code>originalMetadata</code> – extracted source metadata groups, including <code>site</code>, <code>platform</code>, <code>node</code>, and licensing information.</li>
+      <li><code>originalSettings</code> – extracted <code>metadata.site.settings</code>.</li>
+      <li><code>fullThemeConfig</code> – expanded theme configuration snapshot.</li>
+    </ul>
+    <p>When present, <code>_skeleton.originalMetadata.platform</code> carries the same platform settings model described in <a href="haxcms-metadata-conventions">HAXcms Metadata Conventions</a>, which lets consumers understand block-level and feature-level restrictions without reconstructing them from UI state.</p>
+  </div>
+</a11y-collapse>
+<h2>Suggested Skeleton API adjustments for clearer JOS/PRAW interoperability</h2>
+<p>These are recommended improvements to keep Skeleton API data easier to ingest and reason about:</p>
+<ol>
+  <li><strong>Promote platform metadata to a first-class top-level field.</strong> Add optional top-level <code>platform</code> in skeleton payloads, and keep <code>_skeleton.originalMetadata.platform</code> as a compatibility source during transition.</li>
+  <li><strong>Document a normalized platform schema.</strong> Canonical shape: <code>{ audience, features, allowedBlocks }</code>. Keep legacy read support for <code>{ delete, blocks }</code> but avoid writing legacy keys in new skeletons.</li>
+  <li><strong>Expose richer list metadata from <code>skeletonsList</code>.</strong> Keep returning <code>machineName</code> / <code>machine-name</code> and <code>priority</code> for predictable client sorting and lookup, and continue omitting internal fallback skeletons (such as <code>default-starter</code>) from public selections.</li>
+  <li><strong>Document metadata pass-through expectations explicitly.</strong> Clarify that site creation and manifest editing should preserve <code>metadata.platform</code> rather than dropping or flattening it, and that block restrictions should be interpreted from platform metadata, not inferred heuristically.</li>
+  <li><strong>Version extension blocks.</strong> Add explicit versioning guidance for <code>_skeleton</code> and any top-level <code>platform</code> block so ingestion tools can branch safely over time.</li>
+</ol>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<item>
+<id>item-b1b925a6-359b-4f79-8083-a8653895d165</id>
+<indent>0</indent>
+<location>pages/item-b1b925a6-359b-4f79-8083-a8653895d165/index.xml</location>
+<slug>outline-structure</slug>
+<order>1</order>
+<parent></parent>
+<title>Outline Structure</title>
+<description></description>
+<metadata>
+<created>1793375119</created>
+<updated>1793375119</updated>
+<images>
+</images>
+<videos>
+</videos>
+</metadata>
+<content><![CDATA[<p>Here is an example of a single JSON Outline Schema entity:</p>
+<code-sample type="json" copy-clipboard-button="copy-clipboard-button">
+<template>{
+  "id": "unique-id-of-the-item-1",
+  "indent": "1",
+  "location": "name-of-some-file-or-location.html",
+  "slug": "name-of-some-path-in-the-url",
+  "order": "0",
+  "parent": "unique-id-of-the-parent",
+  "title": "Name of some file or location",
+  "metadata": {}
+}</template>
+</code-sample>
+<p>This gives enough data to visually represent the information in an outline form. Here is a larger example of three items related together, expressing nested hierarchy in a consistent way:</p>
+<code-sample type="json" copy-clipboard-button="copy-clipboard-button">
+<template>{
+  "id": "123-ddc-d321d-d2e-dd2",
+  "title": "My outline",
+  "author": "LRNWebComponents",
+  "description": "A series of related material to teach you about the structure of content.",
+  "license": "by-sa",
+  "metadata": {},
+  "items": [
+    {
+      "id": "item-1",
+      "indent": "1",
+      "location": "outline.html",
+      "slug": "outline",
+      "order": "0",
+      "parent": null,
+      "title": "Outline",
+      "description": "A description at a glance of this item potentially",
+      "metadata": {
+        "icon": "icons:view-quilt"
+      }
+    },
+    {
+      "id": "item-2",
+      "indent": "2",
+      "location": "introduction.html",
+      "slug": "introduction",
+      "order": "0",
+      "parent": "item-1",
+      "title": "Introduction to outlines",
+      "description": "A description at a glance of this item potentially",
+      "metadata": {}
+    },
+    {
+      "id": "item-3",
+      "indent": "2",
+      "location": "files/a-2nd-page-item.html",
+      "slug": "a-2nd-page-item",
+      "order": "1",
+      "parent": "item-1",
+      "title": "An item in an outline",
+      "description": "A description at a glance of this item potentially",
+      "metadata": {}
+    }
+  ]
+}</template>
+</code-sample>
+<a11y-collapse heading-button="heading-button">
+  <h2 slot="heading">Higher order schema</h2>
+  <div slot="content">
+    <ul>
+      <li><code>title</code> — name of the work as a whole.</li>
+      <li><code>author</code> — who created this work.</li>
+      <li><code>description</code> — short description of the work to explain it.</li>
+      <li><code>license</code> — a valid license shorthand for the work as a whole.</li>
+      <li><code>metadata</code> — area for storing any additional details about the work. Core JSON Outline Schema intentionally keeps this open-ended; downstream systems (like HAXcms) define practical conventions in this area.</li>
+      <li><code>id</code> — a unique identifier for this work in the universe of all works.</li>
+      <li><code>items</code> — an array of schema elements which contain the pages / leaves of the structure of this outline.</li>
+    </ul>
+  </div>
+</a11y-collapse>
+<a11y-collapse heading-button="heading-button">
+  <h2 slot="heading">Leaf / page element within the structure</h2>
+  <div slot="content">
+    <ul>
+      <li><code>id</code> — the UUID / unique ID of the element.</li>
+      <li><code>indent</code> — how far to visually position the item inward. You could have something be the parent as a page but visually only be indented 2 levels.</li>
+      <li><code>location</code> — a file or resource that references the related data to display here.</li>
+      <li><code>slug</code> — a URI portion that is how this resource should be presented on the web. Can be the same as location but allows abstraction away from the actual location of the file via this attribute.</li>
+      <li><code>order</code> — a weighting as to the order relative to other items that match this parent level.</li>
+      <li><code>parent</code> — a UUID / unique ID of the element this is a child of.</li>
+      <li><code>title</code> — title of this item to display.</li>
+      <li><code>description</code> — short description of the item to explain it.</li>
+      <li><code>metadata</code> — a container for any additional details of information you need to ship. This has no standard structure in core JSON Outline Schema.</li>
+    </ul>
+  </div>
+</a11y-collapse>
+]]></content>
+</item>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+  <channel>
+    <title>JSON Outline Schema</title>
+    <link>https://localhost/json-outline-schema-docs/</link>
+    <description>Documentation for the JSON Outline Schema used by HAXcms for content structure, site navigation, metadata, and the Skeleton API.</description>
+    <copyright>Copyright (C) 2026 https://localhost/json-outline-schema-docs</copyright>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 30 Oct 2026 15:37:09 GMT</lastBuildDate>
+    <generator>HAXcms NodeJS</generator>
+    <atom:link href="https://localhost/json-outline-schema-docs/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Overview</title>
+      <link>https://localhost/json-outline-schema-docs/overview</link>
+      <description>JSON Outline Schema (JOS) is a standard way of expressing and storing the relationship between objects. It gives you a simple way of linking data together to form an outline of related concepts and entities—title, author, description, and a flat list of items that reference one another by parent ID. HAXcms uses JOS as the backbone for every site&apos;s site.json manifest: the outline of pages, their order, their nesting, and a flexible metadata container that downstream systems (like HAXcms itself...</description>
+      <guid>https://localhost/json-outline-schema-docs/overview</guid>
+      <pubDate>Fri, 30 Oct 2026 15:37:09 GMT</pubDate>
+    </item>
+    <item>
+      <title>Outline Structure</title>
+      <link>https://localhost/json-outline-schema-docs/outline-structure</link>
+      <description>Here is an example of a single JSON Outline Schema entity: { &quot;id&quot;: &quot;unique-id-of-the-item-1&quot;, &quot;indent&quot;: &quot;1&quot;, &quot;location&quot;: &quot;name-of-some-file-or-location.html&quot;, &quot;slug&quot;: &quot;name-of-some-path-in-the-url&quot;, &quot;order&quot;: &quot;0&quot;, &quot;parent&quot;: &quot;unique-id-of-the-parent&quot;, &quot;title&quot;: &quot;Name of some file or location&quot;, &quot;metadata&quot;: {} } This gives enough data to visually represent the information in an outline form. Here is a larger example of three items related together, expressing nested hierarchy in a consistent way: ...</description>
+      <guid>https://localhost/json-outline-schema-docs/outline-structure</guid>
+      <pubDate>Fri, 30 Oct 2026 15:45:19 GMT</pubDate>
+    </item>
+    <item>
+      <title>HAXcms Metadata Conventions</title>
+      <link>https://localhost/json-outline-schema-docs/haxcms-metadata-conventions</link>
+      <description>JSON Outline Schema is intentionally flexible about metadata . In practice, HAXcms uses stable metadata groups that are important to document for interoperability (including ingest into systems like PRAW), even though these groups are not formally required by JOS itself. metadata.site Holds site-level information and operational settings used by HAXcms: name — machine name for the site (folder / instance alignment). created / updated — unix timestamps. logo , domain , tags , homePageId — comm...</description>
+      <guid>https://localhost/json-outline-schema-docs/haxcms-metadata-conventions</guid>
+      <pubDate>Fri, 30 Oct 2026 15:45:20 GMT</pubDate>
+    </item>
+    <item>
+      <title>Skeleton API</title>
+      <link>https://localhost/json-outline-schema-docs/skeleton-api</link>
+      <description>The Skeleton API builds on JSON Outline Schema to describe reusable starter &quot;skeletons&quot; for HAXcms sites. A skeleton is a JSON document that combines: High-level metadata about the skeleton itself. Initial HAXcms site settings (name, description, theme). A JSON Outline Schema–style outline of pages to create. Optional theme and visual metadata for dashboards and UIs. Skeleton documents are stored as JSON files (for example in HAXcms coreConfig/skeletons/ ), and are delivered over HTTP via the...</description>
+      <guid>https://localhost/json-outline-schema-docs/skeleton-api</guid>
+      <pubDate>Fri, 30 Oct 2026 15:45:21 GMT</pubDate>
+    </item>
+    <item>
+      <title>Skeleton API HTTP Endpoints</title>
+      <link>https://localhost/json-outline-schema-docs/skeleton-api-http-endpoints</link>
+      <description>Skeleton JSON documents (described in Skeleton API ) are exposed via two HAXcms API endpoints, implemented in both the PHP ( Operations::skeletonsList / Operations::getSkeleton ) and Node.js backends. GET /skeletonsList Returns the list of available skeletons visible to the current user. Query parameters user_token – required request token for the active user (same token used by other HAXcms CMS endpoints). Response shape (success) { &quot;status&quot;: 200, &quot;data&quot;: [ { &quot;title&quot;: &quot;Online Course&quot;, &quot;descr...</description>
+      <guid>https://localhost/json-outline-schema-docs/skeleton-api-http-endpoints</guid>
+      <pubDate>Fri, 30 Oct 2026 15:45:22 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
