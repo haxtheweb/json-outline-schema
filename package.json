@@ -1,0 +1,54 @@
+{
+  "name": "@haxtheweb/json-outline-schema-spec",
+  "version": "26.8.1",
+  "description": "JSON Schema definitions and a validator for JSON Outline Schema, HAXcms site.json and HAXcms skeletons",
+  "keywords": [
+    "json-outline-schema",
+    "haxcms",
+    "hax",
+    "json-schema",
+    "outline",
+    "validator"
+  ],
+  "homepage": "https://github.com/haxtheweb/json-outline-schema#readme",
+  "bugs": {
+    "url": "https://github.com/haxtheweb/issues/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haxtheweb/json-outline-schema.git"
+  },
+  "license": "Apache-2.0",
+  "main": "scripts/validate.js",
+  "exports": {
+    ".": "./scripts/validate.js",
+    "./schema/*": "./schema/*",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "jos-validate": "scripts/validate.js"
+  },
+  "files": [
+    "schema/",
+    "scripts/validate.js",
+    "example.json",
+    "examples/"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "validate": "node scripts/validate.js",
+    "test": "node scripts/test.js",
+    "release": "npm test && commit-and-tag-version && git push --follow-tags origin master && npm publish"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1"
+  },
+  "devDependencies": {
+    "commit-and-tag-version": "12.7.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

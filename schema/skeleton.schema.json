@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/haxtheweb/json-outline-schema/master/schema/skeleton.schema.json",
+  "title": "HAXcms site skeleton",
+  "description": "A reusable starter for new HAXcms sites, served by the `skeletonsList` / `getSkeleton` endpoints and written by the HAXcms site-skeleton-generator. `build.items` is an extended JSON Outline Schema item list: same tree fields, no `location`, plus an inline `content` HTML string.",
+  "type": "object",
+  "required": ["meta", "site", "build"],
+  "properties": {
+    "meta": {
+      "description": "Describes the skeleton itself and how it appears in selection UIs.",
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": { "description": "Skeleton name. `skeletonsList` reports the normalized FILE name as `machineName`; `getSkeleton` matches the requested name against the file name, `meta.machineName` or `meta.name`. Keeping all three identical avoids surprises.", "type": "string", "minLength": 1 },
+        "machineName": { "description": "Same as `name`; written by newer generators.", "type": "string" },
+        "priority": { "description": "Sort weight in selection lists (lower sorts first).", "type": "integer" },
+        "description": { "type": "string" },
+        "version": { "type": "string" },
+        "created": { "description": "ISO 8601 timestamp.", "type": "string" },
+        "type": { "const": "skeleton" },
+        "sourceUrl": { "description": "URL / path of the site this skeleton was generated from.", "type": "string" },
+        "useCaseTitle": { "description": "Human readable title shown in selectors.", "type": "string" },
+        "useCaseDescription": { "type": "string" },
+        "useCaseImage": { "description": "Thumbnail path or URL.", "type": "string" },
+        "category": { "type": "array", "items": { "type": "string" } },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "attributes": { "type": "array" }
+      }
+    },
+    "site": {
+      "description": "Initial HAXcms site configuration for the generated site.",
+      "type": "object",
+      "required": ["name", "theme"],
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "theme": { "description": "Theme element tag to apply, for example `clean-one`.", "type": "string" },
+        "settings": {
+          "description": "Copied into `metadata.site.settings` of the new site.",
+          "$ref": "haxcms-site.schema.json#/$defs/site/properties/settings"
+        },
+        "platform": {
+          "description": "Copied into `metadata.platform` of the new site.",
+          "$ref": "haxcms-site.schema.json#/$defs/platform"
+        },
+        "plugins": {
+          "description": "Plugins to enable on a site created from this skeleton. A starting point only: later changes to the skeleton do not affect sites already made from it. See the HAXcms plugin specification, https://github.com/haxtheweb/haxcms-plugin-examples/pull/1.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+          }
+        }
+      }
+    },
+    "build": {
+      "type": "object",
+      "required": ["items"],
+      "properties": {
+        "type": { "description": "Usually `skeleton`.", "type": "string" },
+        "structure": { "description": "Build strategy, usually `from-skeleton`.", "type": "string" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/skeletonItem" }
+        },
+        "files": {
+          "description": "Files to copy into the new site's `files/` directory. Generators write `{ \"path\": \"...\" }` objects; bare strings are accepted.",
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "object", "required": ["path"], "properties": { "path": { "type": "string" } } }
+            ]
+          }
+        }
+      }
+    },
+    "theme": {
+      "description": "Theme metadata for dashboards. Older skeletons hold tile visuals (`hexCode`, `cssVariable`, `icon`, `image`); generated skeletons merge in theme config (`element`, `path`, `name`, `thumbnail`, `regions`, ...). Both shapes are valid.",
+      "type": "object"
+    },
+    "_skeleton": {
+      "description": "Optional generator metadata. Currently `fullThemeConfig` (`{ element, variables }`); older docs also described `originalMetadata` / `originalSettings`.",
+      "type": "object",
+      "properties": {
+        "fullThemeConfig": { "$ref": "haxcms-site.schema.json#/$defs/theme" }
+      }
+    }
+  },
+  "$defs": {
+    "skeletonItem": {
+      "description": "Outline item plus inline initial content. ids only need to be unique within the skeleton; HAXcms issues fresh ids when it builds a site from it.",
+      "type": "object",
+      "required": ["id", "title", "slug", "order", "parent"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string" },
+        "slug": { "type": "string", "pattern": "^(?!/)" },
+        "order": { "$ref": "json-outline-schema.schema.json#/$defs/integerLike" },
+        "parent": { "oneOf": [{ "type": "null" }, { "type": "string" }] },
+        "indent": { "$ref": "json-outline-schema.schema.json#/$defs/integerLike" },
+        "content": { "description": "Initial page HTML.", "type": "string" },
+        "metadata": { "$ref": "haxcms-site.schema.json#/$defs/itemMetadata" }
+      }
+    }
+  }
+}

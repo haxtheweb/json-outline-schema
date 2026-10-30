@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/haxtheweb/json-outline-schema/master/schema/haxcms-site.schema.json",
+  "title": "HAXcms site.json",
+  "description": "A HAXcms site manifest (site.json): core JSON Outline Schema plus the metadata conventions HAXcms reads and writes. Unknown keys inside `metadata.*` groups are allowed (HAXcms passes them through), but unknown top-level keys on items are rejected because HAXcms drops them on save.",
+  "allOf": [
+    { "$ref": "json-outline-schema.schema.json" }
+  ],
+  "type": "object",
+  "properties": {
+    "metadata": { "$ref": "#/$defs/siteMetadata" },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/haxcmsItem" }
+    }
+  },
+  "$defs": {
+    "booleanLike": {
+      "description": "Canonical form is a JSON boolean, and HAXcms should write booleans. Older data stores flags as \"1\" / \"0\" / \"\" strings or 1 / 0; readers should treat \"1\", 1 and \"true\" as true and \"\", \"0\", 0 and \"false\" as false. Legacy forms are accepted for reading only (the validator warns on them).",
+      "oneOf": [
+        { "type": "boolean" },
+        { "type": "string", "enum": ["", "0", "1", "true", "false"] },
+        { "type": "integer", "enum": [0, 1] },
+        { "type": "null" }
+      ]
+    },
+    "timestamp": {
+      "description": "Unix timestamp in seconds. Canonical form is an integer; numeric strings appear in older data and are accepted for reading only.",
+      "oneOf": [
+        { "type": "integer", "minimum": 0 },
+        { "type": "string", "pattern": "^[0-9]+$" }
+      ]
+    },
+    "haxcmsItem": {
+      "$ref": "json-outline-schema.schema.json#/$defs/item",
+      "required": ["id", "title", "parent", "order", "indent", "location", "slug", "metadata"],
+      "properties": {
+        "id": true,
+        "title": true,
+        "description": true,
+        "parent": true,
+        "order": true,
+        "indent": true,
+        "location": {
+          "description": "HAXcms convention: `pages/<id>/index.html` (relative to the site root).",
+          "type": "string",
+          "pattern": "^(?!/).+"
+        },
+        "slug": true,
+        "metadata": { "$ref": "#/$defs/itemMetadata" }
+      },
+      "unevaluatedProperties": false
+    },
+    "itemMetadata": {
+      "description": "Per-page metadata. Keys marked (computed) are recalculated by HAXcms from page content on save; writers can omit them.",
+      "type": "object",
+      "properties": {
+        "published": { "description": "Whether the page is published (visible to site visitors). Defaults to true when missing.", "$ref": "#/$defs/booleanLike" },
+        "hideInMenu": { "description": "Hide the page from site navigation while keeping it reachable by URL.", "$ref": "#/$defs/booleanLike" },
+        "locked": { "description": "Prevent editing of the page in the HAX editor.", "$ref": "#/$defs/booleanLike" },
+        "created": { "$ref": "#/$defs/timestamp" },
+        "updated": { "$ref": "#/$defs/timestamp" },
+        "tags": {
+          "description": "Page tags. Canonical form is an array of strings. The editor currently collects tags as a comma-separated list; older site.json files store that raw string, which is accepted for reading only.",
+          "oneOf": [
+            { "type": "array", "items": { "type": "string" } },
+            { "type": "string", "deprecated": true }
+          ]
+        },
+        "pageType": {
+          "description": "What kind of page this is, for example `Lesson`, `Quiz` or `Assessment`. Primarily used to map pages onto OER Schema classes (https://oerschema.org/).",
+          "type": "string",
+          "examples": ["Lesson", "Quiz", "Assessment", "Activity", "Unit", "Module"]
+        },
+        "relatedItems": {
+          "description": "Non-hierarchical relationships to other items in this outline (\"people who read this also read\"), as item ids. Canonical form is an array of ids; a single id string appears in older data. Hierarchy itself is always `parent`.",
+          "oneOf": [
+            { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+            { "type": "string", "deprecated": true }
+          ]
+        },
+        "icon": { "description": "Icon identifier (`iconset:name`, for example `icons:book`) used by themes in menus.", "type": "string" },
+        "image": { "description": "Featured image path or URL for the page.", "type": "string" },
+        "theme": { "description": "Per-page theme override (same shape as `metadata.theme`).", "type": "object" },
+        "readtime": { "description": "(computed) Estimated read time in minutes.", "$ref": "json-outline-schema.schema.json#/$defs/integerLike" },
+        "images": { "description": "(computed) Images referenced in the page content.", "type": "array" },
+        "videos": { "description": "(computed) Videos referenced in the page content.", "type": "array" },
+        "files": { "description": "(computed) Files referenced in the page content.", "type": "array" },
+        "contentDetails": { "description": "(computed) Content statistics (element / heading / paragraph counts, schema references).", "type": "object" },
+        "overridePathauto": { "description": "Keep the stored slug even when the site has `settings.pathauto` enabled.", "type": "boolean" },
+        "plugins": { "$ref": "#/$defs/pluginValues" }
+      }
+    },
+    "siteMetadata": {
+      "type": "object",
+      "properties": {
+        "author": {
+          "description": "Site author profile shown by themes.",
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "email": { "type": "string" },
+            "image": { "type": ["string", "null"] },
+            "socialLink": { "type": "string" }
+          }
+        },
+        "site": { "$ref": "#/$defs/site" },
+        "theme": { "$ref": "#/$defs/theme" },
+        "platform": { "$ref": "#/$defs/platform" },
+        "node": {
+          "description": "Node / page field configuration.",
+          "type": "object",
+          "properties": {
+            "fields": { "type": "object" }
+          }
+        },
+        "build": {
+          "description": "How the site was originally created (written once by HAXcms at creation time).",
+          "type": "object",
+          "properties": {
+            "version": { "type": "string" },
+            "structure": { "type": "string" },
+            "type": { "type": "string" }
+          }
+        },
+        "plugins": { "$ref": "#/$defs/pluginValues" }
+      }
+    },
+    "pluginValues": {
+      "description": "Values plugins keep on this record, one object per plugin id (`metadata.plugins.<plugin id>`). Each plugin declares its fields; HAXcms drops undeclared ones on save and leaves data of uninstalled plugins alone. See the HAXcms plugin specification, https://github.com/haxtheweb/haxcms-plugin-examples/pull/1 (spec/04).",
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" },
+      "additionalProperties": { "type": "object" }
+    },
+    "site": {
+      "description": "Site-level information and operational settings.",
+      "type": "object",
+      "properties": {
+        "name": { "description": "Machine name of the site; matches its folder name under `_sites/`.", "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+        "logo": { "type": "string" },
+        "lang": { "description": "Default language code (for example `en`).", "type": "string" },
+        "domain": { "description": "Public domain the site is published to, if any.", "type": "string" },
+        "homePageId": { "description": "`id` of the item used as the home page.", "type": "string" },
+        "tags": { "description": "Site tags. Canonical form is an array of strings; a comma-separated string is accepted for reading older data.", "oneOf": [ { "type": "array", "items": { "type": "string" } }, { "type": "string", "deprecated": true } ] },
+        "created": { "$ref": "#/$defs/timestamp" },
+        "updated": { "$ref": "#/$defs/timestamp" },
+        "version": { "description": "HAXcms version that last wrote the site.", "type": "string" },
+        "git": { "description": "Optional publishing / deployment information.", "type": "object" },
+        "static": { "type": "object" },
+        "settings": {
+          "description": "Feature flags and runtime behavior.",
+          "type": "object",
+          "properties": {
+            "lang": { "type": "string" },
+            "publishPagesOn": { "type": "boolean" },
+            "canonical": { "type": "boolean" },
+            "pathauto": { "description": "Build slugs from the page title and parent path automatically.", "type": "boolean" },
+            "private": { "type": "boolean" },
+            "sw": { "description": "Enable the offline service worker.", "type": "boolean" },
+            "forceUpgrade": { "type": "boolean" },
+            "gaID": { "description": "Google Analytics measurement id.", "type": ["string", "null"] }
+          }
+        }
+      }
+    },
+    "theme": {
+      "description": "Active theme and theme-level settings.",
+      "type": "object",
+      "properties": {
+        "element": { "description": "Theme custom element tag, for example `clean-one`.", "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)+$" },
+        "path": { "description": "Module path of the theme, for example `@haxtheweb/clean-one/clean-one.js`.", "type": "string" },
+        "name": { "type": "string" },
+        "thumbnail": { "type": "string" },
+        "styleGuide": { "description": "External style-guide URL. When set, HAXcms treats style-guide editing as external.", "type": "string" },
+        "variables": {
+          "type": "object",
+          "properties": {
+            "hexCode": { "type": "string", "pattern": "^#[0-9a-fA-F]{3,8}$" },
+            "cssVariable": { "type": "string", "pattern": "^--" },
+            "icon": { "type": "string" },
+            "image": { "type": ["string", "null"] },
+            "imageAlt": { "type": ["string", "null"] },
+            "imageLink": { "type": ["string", "null"] },
+            "palette": { "type": "string" }
+          }
+        },
+        "regions": {
+          "description": "Theme region name -> array of item ids rendered in that region (for example `header`, `footerPrimary`).",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "platform": {
+      "description": "HAX editor / CMS behavior controls. See README 'How platform settings affect block behavior'.",
+      "type": "object",
+      "properties": {
+        "audience": {
+          "description": "Editing audience. Defaults to `expert` when missing.",
+          "type": "string",
+          "enum": ["novice", "expert"]
+        },
+        "features": {
+          "description": "Feature toggles. A missing key means the feature is ENABLED; only an explicit `false` disables it.",
+          "type": "object",
+          "propertyNames": {
+            "enum": [
+              "addPage", "saveAndEdit", "deletePage", "styleGuide", "outlineDesigner", "insights",
+              "siteManifest", "themeManifest", "authorManifest", "seoManifest", "manifest",
+              "addBlock", "contentMap", "viewSource", "uploadMedia", "onlineMedia", "onlineSearch",
+              "pageBreak", "pageTemplates", "blockTemplates", "popularGizmos", "recentGizmos",
+              "community", "views"
+            ]
+          },
+          "additionalProperties": { "type": "boolean" }
+        },
+        "allowedBlocks": {
+          "description": "Optional-block allow-list. Missing or `[]` = no allow-list defined (all blocks allowed). `null` = no optional blocks allowed. Non-empty array = only these tags (plus required primitive text tags).",
+          "oneOf": [
+            { "type": "null" },
+            { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+          ]
+        },
+        "delete": { "description": "LEGACY: read as `features.deletePage`. Do not write.", "type": "boolean", "deprecated": true },
+        "blocks": { "description": "LEGACY: read as `allowedBlocks`. Do not write.", "type": ["array", "null"], "deprecated": true }
+      }
+    }
+  }
+}

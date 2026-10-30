@@ -1,0 +1,8 @@
+{
+  "id": "invalid-missing-parent",
+  "title": "Parent points at an id that does not exist",
+  "items": [
+    { "id": "a", "title": "A", "parent": null, "order": 0 },
+    { "id": "b", "title": "B", "parent": "does-not-exist", "order": 0 }
+  ]
+}

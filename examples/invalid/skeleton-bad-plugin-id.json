@@ -1,0 +1,47 @@
+{
+  "meta": {
+    "name": "example-course",
+    "machineName": "example-course",
+    "priority": 0,
+    "description": "A two-unit course starter.",
+    "version": "1.0.0",
+    "created": "2026-10-13T00:00:00.000Z",
+    "type": "skeleton",
+    "useCaseTitle": "Example course",
+    "useCaseDescription": "Syllabus plus two units with one lesson each.",
+    "useCaseImage": "@haxtheweb/haxcms-elements/lib/theme-screenshots/theme-clean-one-thumb.jpg",
+    "category": ["Course"],
+    "tags": ["course", "example"],
+    "attributes": []
+  },
+  "site": {
+    "name": "example-course",
+    "description": "A two-unit course starter.",
+    "theme": "clean-one",
+    "settings": { "lang": "en-US", "publishPagesOn": true, "pathauto": true },
+    "platform": {
+      "audience": "novice",
+      "features": { "deletePage": false, "outlineDesigner": false },
+      "allowedBlocks": ["media-image", "video-player", "a11y-collapse"]
+    },
+    "plugins": ["Comments_Plugin"]
+  },
+  "build": {
+    "type": "skeleton",
+    "structure": "from-skeleton",
+    "items": [
+      { "id": "syllabus", "title": "Syllabus", "slug": "syllabus", "order": 0, "parent": null, "indent": 0, "content": "<p>Course overview.</p>", "metadata": { "published": true, "hideInMenu": false, "tags": [] } },
+      { "id": "unit-1", "title": "Unit 1", "slug": "unit-1", "order": 1, "parent": null, "indent": 0, "content": "<p>Unit 1 overview.</p>", "metadata": { "published": true, "hideInMenu": false, "tags": [] } },
+      { "id": "unit-1-lesson-1", "title": "Lesson 1", "slug": "unit-1/lesson-1", "order": 0, "parent": "unit-1", "indent": 1, "content": "<p>Lesson content.</p>", "metadata": { "published": true, "hideInMenu": false, "tags": [] } },
+      { "id": "unit-2", "title": "Unit 2", "slug": "unit-2", "order": 2, "parent": null, "indent": 0, "content": "<p>Unit 2 overview.</p>", "metadata": { "published": true, "hideInMenu": false, "tags": [] } },
+      { "id": "unit-2-lesson-1", "title": "Lesson 1", "slug": "unit-2/lesson-1", "order": 0, "parent": "unit-2", "indent": 1, "content": "<p>Lesson content.</p>", "metadata": { "published": true, "hideInMenu": false, "tags": [] } }
+    ],
+    "files": []
+  },
+  "theme": {
+    "hexCode": "#006699",
+    "cssVariable": "--simple-colors-default-theme-light-blue-7",
+    "icon": "icons:book",
+    "image": "@haxtheweb/haxcms-elements/lib/theme-screenshots/theme-clean-one-thumb.jpg"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/haxtheweb/json-outline-schema/master/schema/json-outline-schema.schema.json",
+  "title": "JSON Outline Schema",
+  "description": "Core JSON Outline Schema (JOS): a work (outline) and a flat list of items whose tree is expressed through `parent` + `order`. This schema is intentionally lenient about legacy value types (numeric strings for `indent`/`order`) because real HAXcms data contains both; writers SHOULD emit the canonical form described in each property. Rules that JSON Schema cannot express (unique ids, parent references, cycles, unique slugs) are enforced by scripts/validate.js.",
+  "type": "object",
+  "required": ["id", "title", "items"],
+  "properties": {
+    "id": {
+      "description": "Unique identifier for this work in the universe of all works. HAXcms generates a UUID v4.",
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "description": "Name of the work as a whole.",
+      "type": "string"
+    },
+    "author": {
+      "description": "Who created this work (free text).",
+      "type": "string"
+    },
+    "description": {
+      "description": "Short description of the work.",
+      "type": "string"
+    },
+    "license": {
+      "description": "License short-hand for the work as a whole. HAXcms resolves the Creative Commons short-hands listed here to names/links; other values are passed through untouched.",
+      "type": "string",
+      "examples": ["by", "by-sa", "by-nd", "by-nc", "by-nc-sa", "by-nc-nd"]
+    },
+    "metadata": {
+      "description": "Open-ended container for anything else. Core JOS defines no structure here; downstream systems (HAXcms: see haxcms-site.schema.json) layer conventions on top.",
+      "type": "object"
+    },
+    "items": {
+      "description": "Flat array of outline items. Hierarchy is expressed by `parent`, sibling order by `order`. HAXcms re-sorts this array into depth-first tree order on every save, so readers MAY rely on array order for saved files but MUST NOT require it.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/item" }
+    }
+  },
+  "$defs": {
+    "integerLike": {
+      "description": "Canonical form is an integer. Numeric strings (\"0\", \"2\") are accepted for compatibility with older HAXcms data.",
+      "oneOf": [
+        { "type": "integer", "minimum": 0 },
+        { "type": "string", "pattern": "^[0-9]+$" }
+      ]
+    },
+    "item": {
+      "title": "JSON Outline Schema item",
+      "description": "A single leaf / page in the outline. HAXcms only persists the properties listed here: any other top-level key on an item is silently DROPPED on load/save (JSONOutlineSchema.validateItem). Put extra data in `metadata`.",
+      "type": "object",
+      "required": ["id", "title", "parent", "order"],
+      "properties": {
+        "id": {
+          "description": "Unique id of the item within this outline. HAXcms uses `item-<uuid v4>`; skeletons use bare UUIDs. Treat as opaque.",
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "description": "Title to display for this item.",
+          "type": "string"
+        },
+        "description": {
+          "description": "Short description of the item (HAXcms auto-fills this from the first text of the page).",
+          "type": "string"
+        },
+        "parent": {
+          "description": "`id` of the parent item, or `null` for a top-level item. `null` is canonical; an empty string is accepted only as a legacy form for reading older data and should not be written.",
+          "oneOf": [
+            { "type": "null" },
+            { "type": "string" }
+          ]
+        },
+        "order": {
+          "description": "Sort weight relative to siblings that share the same `parent`. Canonical form: 0-based integer, contiguous within a sibling group.",
+          "$ref": "#/$defs/integerLike"
+        },
+        "indent": {
+          "description": "Visual indentation level (integer, 0 = top level). In a typical outline it equals the item's depth in the tree. It MAY intentionally differ when an outline wants a different presentation than its hierarchy (for example, sibling pages displayed at different indents), but that is rare. Consumers MUST derive hierarchy from `parent`, never from `indent`.",
+          "$ref": "#/$defs/integerLike"
+        },
+        "location": {
+          "description": "Relative path to the resource holding this item's content. HAXcms convention: `pages/<id>/index.html`.",
+          "type": "string"
+        },
+        "slug": {
+          "description": "URL path segment(s) for this item, relative to the site base. May contain `/` (HAXcms with pathauto builds `parent-slug/child-slug`). Must be unique within the outline. Must not start with `/`.",
+          "type": "string",
+          "pattern": "^(?!/)"
+        },
+        "metadata": {
+          "description": "Open-ended container for per-item data.",
+          "type": "object"
+        }
+      }
+    }
+  }
+}
