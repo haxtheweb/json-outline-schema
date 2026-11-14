@@ -1,0 +1,45 @@
+{
+  "id": "3c2f6a1e-8b7d-4e55-9f0a-5d1b2c3e4f60",
+  "title": "Smallest site",
+  "author": "",
+  "description": "The smallest folder that is a HAXcms site: site.json and one file per page.",
+  "license": "by-sa",
+  "metadata": {
+    "site": {
+      "name": "smallest-site",
+      "domain": null,
+      "created": 1422799200,
+      "updated": 1422799200
+    }
+  },
+  "items": [
+    {
+      "id": "welcome",
+      "indent": 0,
+      "location": "pages/welcome/index.html",
+      "slug": "welcome",
+      "order": 0,
+      "parent": null,
+      "title": "Welcome",
+      "description": "",
+      "metadata": {
+        "created": 1422799200,
+        "updated": 1422799200
+      }
+    },
+    {
+      "id": "about",
+      "indent": 0,
+      "location": "pages/about/index.html",
+      "slug": "about",
+      "order": 1,
+      "parent": null,
+      "title": "About",
+      "description": "",
+      "metadata": {
+        "created": 1422799200,
+        "updated": 1422799200
+      }
+    }
+  ]
+}

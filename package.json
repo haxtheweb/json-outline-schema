@@ -31,6 +31,7 @@
   "files": [
     "schema/",
     "scripts/validate.js",
+    "scripts/site-folder.js",
     "example.json",
     "examples/"
   ],
