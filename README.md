@@ -98,6 +98,7 @@ The prose in this README is backed by [JSON Schema (draft 2020-12)](https://json
 | [`schema/json-outline-schema.schema.json`](schema/json-outline-schema.schema.json) | Any JSON Outline Schema document (core spec only) |
 | [`schema/haxcms-site.schema.json`](schema/haxcms-site.schema.json) | A HAXcms `site.json` (core + the `metadata` conventions below) |
 | [`schema/skeleton.schema.json`](schema/skeleton.schema.json) | A HAXcms site skeleton (see [Skeleton API](#skeleton-api)) |
+| [`schema/haxcms-site-contract.json`](schema/haxcms-site-contract.json) | A HAXcms site folder: the files around `site.json` (see [Site folder contract](#site-folder-contract)) |
 
 JSON Schema cannot express cross-item rules, so `scripts/validate.js` adds them: unique `id`s, `parent` pointing at a real item, no parent cycles, unique `slug`s, plus warnings for `indent` that disagrees with tree depth, repeated sibling `order`, legacy value forms (string numbers, `"1"`/`""` flags, comma-separated `tags`), `relatedItems` that point nowhere, and non-standard `location` paths.
 
@@ -121,6 +122,38 @@ npm test                                                # self-test against exam
 
 Examples: [`example.json`](example.json) (HAXcms site), [`examples/minimal.json`](examples/minimal.json) (smallest valid outline), [`examples/skeleton.json`](examples/skeleton.json), [`examples/legacy-values.json`](examples/legacy-values.json) (older value forms that are still readable but should never be written), and [`examples/invalid/`](examples/invalid) (one file per mistake the validator catches). `examples/skeleton.json` also shows `site.plugins`, and `example.json` shows plugin values on a page (`metadata.plugins`).
 
+## Site folder contract
+
+`site.json` describes the outline. [`schema/haxcms-site-contract.json`](schema/haxcms-site-contract.json) describes the folder around it: every path a HAXcms site may hold, whether it is required, who owns it and which schema it follows. Its format is [`schema/site-contract.schema.json`](schema/site-contract.schema.json). Tracked in [haxtheweb/issues#3351](https://github.com/haxtheweb/issues/issues/3351).
+
+A folder conforms at one of three levels. Each level includes the one before it.
+
+| Level | The folder has | Who targets it |
+| --- | --- | --- |
+| `content` | A valid `site.json` and a file at every item's `location` | Any engine that produces HAXcms content: an exporter from another CMS, a static generator, an agent |
+| `runnable` | Content plus the loader files (`index.html`, `build.js`, `build-haxcms.js`) | A folder served as a site from a static host |
+| `managed` | Runnable plus every file a HAXcms backend writes and rebuilds | A site a HAXcms backend or the HAX CLI made, or can take over without rewriting files on the first save |
+
+[`examples/site-folder`](examples/site-folder) is the smallest folder that is a HAXcms site: `site.json` and one HTML file per page.
+
+Each entry has a `status` and an `owner`:
+
+- **status**: `required` (from the entry's `level` up), `optional`, or `retired`. A retired path is no longer written. A site that already has one stays valid (a warning); a newly made site must not have one.
+- **owner**: `authored` (never overwritten by HAXcms), `managed` (rewritten on rebuild), `partly-managed` (HAXcms owns the part its `policy` names), `generated` (rebuilt from `site.json` or page content), `scaffold` (copied once when the site is made), `deployment` (placed by whatever serves the site).
+
+In a path, `*` matches within one segment and `**` matches any depth. A path without a wildcard is matched first; otherwise the first matching entry wins.
+
+```bash
+npx -p @haxtheweb/json-outline-schema-spec jos-validate --site path/to/site                  # content level
+npx -p @haxtheweb/json-outline-schema-spec jos-validate --site --level managed path/to/site
+node scripts/validate.js --site --level managed --exhaustive --new path/to/new-site          # a site that was just made
+node scripts/validate.js --site --json path/to/site                                          # report with the level reached
+```
+
+`--exhaustive` fails on a file no entry covers. `--new` fails on a retired path. The report's `reached` is the highest level the folder satisfies, whatever level was asked for. In process: `validateSiteFolder(dir, { level, exhaustive, isNew })` and `compareBoilerplate(dir)` from the package.
+
+HAXcms behavior is the source of truth. Entries marked `"boilerplate": true` are the files in `haxcms-nodejs/src/boilerplate/site` and `haxcms-php/system/boilerplate/site`; `managed` and `partly-managed` entries are `getManagedTemplateFiles()` and the managed-file policies (`src/lib/managedFiles.js`, `ManagedFiles.php`); `generated` entries come from `updateAlternateFormats()`. Each backend carries a copy of the contract and fails its tests when its boilerplate or managed-file list disagrees with it, so adding or dropping a site file starts with an edit to this file.
+
 ## Rules for tools and agents that write outlines
 
 These are the things that most often go wrong when a program (or an AI agent) edits `site.json` by hand:
@@ -142,7 +175,7 @@ Holds site-level information and operational settings used by HAXcms:
 
 - `name` - machine name for the site (folder / instance alignment).
 - `created` / `updated` - unix timestamps.
-- `logo`, `domain`, `homePageId` - common site metadata values.
+- `logo`, `domain`, `homePageId` - common site metadata values. `domain` is `null` when a site is made without one (`HAXCMSSite.newSite` in both backends).
 - `tags` - array of strings (older sites store a comma-separated string).
 - `settings` - feature flags and runtime behavior (for example `lang`, `publishPagesOn`, `canonical`, `pathauto`, `private`, `sw`, `forceUpgrade`, `gaID`).
 - `git` - optional publishing/deployment information.
@@ -179,7 +212,7 @@ New data should only use `audience`, `features` and `allowedBlocks`.
 ### `metadata.author` and `metadata.build`
 
 - `metadata.author` - site author profile shown by themes: `name`, `email`, `image`, `socialLink`.
-- `metadata.build` - written once at site creation: `version`, `structure` (for example `course`, `from-skeleton`), `type`.
+- `metadata.build` - written once at site creation: `version`, `structure` (for example `course`, `from-skeleton`), `type`. Some older sites hold `null` here; readers accept it, writers leave the key out instead.
 
 ### Item metadata (`items[].metadata`)
 

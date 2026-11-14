@@ -115,8 +115,8 @@
           }
         },
         "build": {
-          "description": "How the site was originally created (written once by HAXcms at creation time).",
-          "type": "object",
+          "description": "How the site was originally created (written once by HAXcms at creation time). Some older sites hold null.",
+          "type": ["object", "null"],
           "properties": {
             "version": { "type": "string" },
             "structure": { "type": "string" },
@@ -139,7 +139,7 @@
         "name": { "description": "Machine name of the site; matches its folder name under `_sites/`.", "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
         "logo": { "type": "string" },
         "lang": { "description": "Default language code (for example `en`).", "type": "string" },
-        "domain": { "description": "Public domain the site is published to, if any.", "type": "string" },
+        "domain": { "description": "Public domain the site is published to. HAXcms writes null when a site is made without one.", "type": ["string", "null"] },
         "homePageId": { "description": "`id` of the item used as the home page.", "type": "string" },
         "tags": { "description": "Site tags. Canonical form is an array of strings; a comma-separated string is accepted for reading older data.", "oneOf": [ { "type": "array", "items": { "type": "string" } }, { "type": "string", "deprecated": true } ] },
         "created": { "$ref": "#/$defs/timestamp" },

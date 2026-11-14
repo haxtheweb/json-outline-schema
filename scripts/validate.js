@@ -2,23 +2,31 @@
 /**
  * Validate JSON Outline Schema documents (core outlines, HAXcms site.json,
  * and HAXcms skeletons) against the schemas in ../schema plus the
- * referential rules JSON Schema cannot express.
+ * referential rules JSON Schema cannot express, and HAXcms site folders
+ * against the site folder contract (../schema/haxcms-site-contract.json).
  *
  * Usage:
  *   node scripts/validate.js [--type core|site|skeleton] [--json] [--strict] <file> [file...]
+ *   node scripts/validate.js --site [--level content|runnable|managed] [--exhaustive] [--new] [--json] [--strict] <folder> [folder...]
  *
  * --type    force a schema; by default it is detected per file:
  *           has `build.items`          -> skeleton
  *           has `metadata.site` object -> site (HAXcms site.json)
  *           otherwise                  -> core
- * --json    print a machine-readable report (one object per file)
+ * --json    print a machine-readable report (one object per file or folder)
  * --strict  treat warnings as errors
  *
- * Exit code: 0 when every file is valid, 1 otherwise.
+ * --site        the arguments are site folders, checked against the contract
+ * --level       level each folder must reach (default: content)
+ * --exhaustive  a file no contract entry covers is an error
+ * --new         a retired path is an error (for a site that was just made)
+ *
+ * Exit code: 0 when every file or folder is valid, 1 otherwise.
  */
 const fs = require('fs')
 const path = require('path')
 const Ajv2020 = require('ajv/dist/2020')
+const siteFolder = require('./site-folder.js')
 
 const SCHEMA_DIR = path.join(__dirname, '..', 'schema')
 const SCHEMAS = {
@@ -183,6 +191,7 @@ function siteChecks (doc) {
   for (const k of ['created', 'updated']) {
     if (site && typeof site[k] === 'string') warnings.push({ path: `/metadata/site/${k}`, message: 'timestamp should be an integer, not a string' })
   }
+  if (doc && doc.metadata && doc.metadata.build === null) warnings.push({ path: '/metadata/build', message: 'build should be an object or left out, not null' })
   return warnings
 }
 
@@ -201,22 +210,91 @@ function validateDoc (doc, type, validators) {
   return { errors: errors.concat(ref.errors), warnings }
 }
 
+/** The contract must itself follow schema/site-contract.schema.json. */
+function validateContract (contract) {
+  const ajv = new Ajv2020({ allErrors: true, strict: false })
+  const schema = JSON.parse(fs.readFileSync(path.join(SCHEMA_DIR, 'site-contract.schema.json'), 'utf8'))
+  const validate = ajv.compile(schema)
+  const errors = validate(contract)
+    ? []
+    : validate.errors.map((e) => ({ path: e.instancePath || '/', message: e.message }))
+  const levels = Array.isArray(contract.levels) ? contract.levels.map((level) => level.id) : []
+  const seen = new Set()
+  ;(Array.isArray(contract.entries) ? contract.entries : []).forEach((entry, i) => {
+    if (!entry || typeof entry.path !== 'string') return
+    if (seen.has(entry.path)) errors.push({ path: `/entries/${i}/path`, message: `duplicate path "${entry.path}"` })
+    seen.add(entry.path)
+    if (entry.level && !levels.includes(entry.level)) errors.push({ path: `/entries/${i}/level`, message: `unknown level "${entry.level}"` })
+  })
+  return errors
+}
+
+/**
+ * Check a HAXcms site folder against the site folder contract. See
+ * scripts/site-folder.js for the options and the report.
+ */
+function validateSiteFolder (dir, options = {}) {
+  const validators = options.validators || buildValidators()
+  return siteFolder.checkSiteFolder(dir, Object.assign({}, options, {
+    validateManifest: (doc) => validateDoc(doc, 'site', validators)
+  }))
+}
+
+function mainSite (folders, { level, exhaustive, isNew, asJson, strict }) {
+  const contract = siteFolder.loadContract()
+  const levels = contract.levels.map((l) => l.id)
+  if (level && !levels.includes(level)) {
+    console.error(`unknown --level "${level}" (expected ${levels.join(', ')})`)
+    return 2
+  }
+  if (!folders.length) {
+    console.error('usage: validate.js --site [--level content|runnable|managed] [--exhaustive] [--new] [--json] [--strict] <folder> [folder...]')
+    return 2
+  }
+  const validators = buildValidators()
+  const reports = folders.map((folder) => {
+    const r = validateSiteFolder(folder, { level, exhaustive, isNew, contract, validators })
+    const valid = r.valid && (!strict || r.warnings.length === 0)
+    return Object.assign({ folder, type: 'site-folder' }, r, { valid })
+  })
+  if (asJson) {
+    console.log(JSON.stringify(reports, null, 2))
+  } else {
+    for (const r of reports) {
+      console.log(`${r.valid ? 'PASS' : 'FAIL'} ${r.folder} (site folder; asked for ${r.level}, reaches ${r.reached || 'none'})`)
+      for (const e of r.errors) console.log(`  error   ${e.path}: ${e.message}`)
+      for (const w of r.warnings) console.log(`  warning ${w.path}: ${w.message}`)
+      if (r.unclassified.length && !exhaustive) console.log(`  note    ${r.unclassified.length} file(s) not covered by the contract (list them with --json, fail on them with --exhaustive)`)
+    }
+  }
+  return reports.every((r) => r.valid) ? 0 : 1
+}
+
 function main (argv) {
   const args = argv.slice(2)
   let forced = null
   let asJson = false
   let strict = false
+  let site = false
+  let level = null
+  let exhaustive = false
+  let isNew = false
   const files = []
   for (let i = 0; i < args.length; i++) {
     const a = args[i]
     if (a === '--type') forced = args[++i]
     else if (a === '--json') asJson = true
     else if (a === '--strict') strict = true
+    else if (a === '--site') site = true
+    else if (a === '--level') level = args[++i]
+    else if (a === '--exhaustive') exhaustive = true
+    else if (a === '--new') isNew = true
     else if (a === '-h' || a === '--help') {
       console.log(fs.readFileSync(__filename, 'utf8').split('*/')[0])
       return 0
     } else files.push(a)
   }
+  if (site) return mainSite(files, { level, exhaustive, isNew, asJson, strict })
   if (forced && !SCHEMAS[forced]) {
     console.error(`unknown --type "${forced}" (expected ${Object.keys(SCHEMAS).join(', ')})`)
     return 2
@@ -252,7 +330,17 @@ function main (argv) {
   return reports.every((r) => r.valid) ? 0 : 1
 }
 
-module.exports = { buildValidators, detectType, referentialChecks, validateDoc }
+module.exports = {
+  buildValidators,
+  detectType,
+  referentialChecks,
+  validateDoc,
+  validateContract,
+  validateSiteFolder,
+  loadContract: siteFolder.loadContract,
+  compileContract: siteFolder.compileContract,
+  compareBoilerplate: siteFolder.compareBoilerplate
+}
 
 if (require.main === module) {
   process.exitCode = main(process.argv)

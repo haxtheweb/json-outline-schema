@@ -2,6 +2,7 @@
   "id": "legacy-values-example",
   "title": "Legacy value forms (readable, never write these)",
   "metadata": {
+    "build": null,
     "site": {
       "name": "legacy",
       "created": "1422799200",
