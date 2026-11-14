@@ -81,8 +81,9 @@ expect('schema/haxcms-site-contract.json follows site-contract.schema.json', con
 expect('contract check catches a duplicate path and an unknown level', (() => {
   const broken = JSON.parse(JSON.stringify(contract))
   broken.entries.push(Object.assign({}, broken.entries[0], { level: 'nowhere' }))
+  broken.entries.push({ path: 'uploads/*', kind: 'folder', status: 'optional', owner: 'authored', note: 'a folder entry cannot be a pattern' })
   const text = messages(validateContract(broken))
-  return text.includes('duplicate path') && text.includes('unknown level')
+  return text.includes('duplicate path') && text.includes('unknown level') && text.includes('must match pattern')
 })())
 
 const { classify } = compileContract(contract)
@@ -93,6 +94,7 @@ const owners = {
   'pages/a/notes/draft.txt': 'authored',
   'files/photos/cat.jpg': 'authored',
   'files/.htaccess': 'managed',
+  'files/.gitkeep': 'scaffold',
   'robots.txt': 'partly-managed',
   build: 'deployment',
   'build/es6/node_modules/x.js': 'deployment',
@@ -108,6 +110,7 @@ for (const [file, owner] of Object.entries(owners)) {
 expect('contract: theme/ is retired at any depth', classify('theme/theme.css').status === 'retired' && classify('theme/a/b.css').status === 'retired')
 expect('contract: * does not cross a folder', classify('pages/a/b/index.html').path === 'pages/**')
 expect('contract: an unknown root file has no entry', classify('notes.txt') === null)
+expect('contract: a folder entry never classifies a file', classify('files') === null)
 
 const exampleSite = path.join(root, 'examples', 'site-folder')
 const atContent = validateSiteFolder(exampleSite, { validators })
@@ -143,6 +146,18 @@ try {
 
   r = validateSiteFolder(copyOfExample('no-manifest', (dir) => fs.rmSync(path.join(dir, 'site.json'))), { validators })
   expect('site folder: site.json is required', !r.valid && messages(r.errors).includes('site.json: required at the content level'), messages(r.errors))
+
+  r = validateSiteFolder(copyOfExample('no-files-folder', (dir) => fs.rmSync(path.join(dir, 'files'), { recursive: true })), { validators })
+  expect('site folder: files/ is required even when empty', !r.valid && r.reached === null && messages(r.errors).includes('files/: folder required at the content level'), messages(r.errors))
+
+  r = validateSiteFolder(copyOfExample('files-is-a-file', (dir) => {
+    fs.rmSync(path.join(dir, 'files'), { recursive: true })
+    fs.writeFileSync(path.join(dir, 'files'), '')
+  }), { validators })
+  expect('site folder: a file named files is not the files/ folder', !r.valid && messages(r.errors).includes('files/: folder required'), messages(r.errors))
+
+  r = validateSiteFolder(copyOfExample('empty-files-folder', (dir) => fs.rmSync(path.join(dir, 'files', '.gitkeep'))), { exhaustive: true, validators })
+  expect('site folder: an empty files/ folder is enough', r.valid, messages(r.errors))
 
   const withRetired = copyOfExample('retired', (dir) => {
     fs.mkdirSync(path.join(dir, 'theme'))

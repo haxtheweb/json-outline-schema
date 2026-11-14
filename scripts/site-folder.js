@@ -5,7 +5,7 @@
  * optional, retired) and an owner. This module reads it, classifies the files
  * found in a folder and reports which conformance level the folder reaches:
  *
- *   content   valid site.json and a file at every item's location
+ *   content   valid site.json, a file at every item's location, a files/ folder
  *   runnable  content plus the loader files
  *   managed   runnable plus every file a HAXcms backend writes and rebuilds
  *
@@ -23,6 +23,7 @@ function loadContract (file = CONTRACT_FILE) {
 }
 
 const hasWildcard = (pattern) => pattern.includes('*')
+const isFolderEntry = (entry) => entry.kind === 'folder'
 
 /** `*` stays inside one path segment, `**` crosses segments. */
 function patternToRegExp (pattern) {
@@ -45,6 +46,8 @@ function compileContract (contract) {
   const literals = new Map()
   const patterns = []
   for (const entry of contract.entries) {
+    // a folder entry is about the folder existing; it never classifies a file
+    if (isFolderEntry(entry)) continue
     if (hasWildcard(entry.path)) patterns.push({ entry, test: patternToRegExp(entry.path) })
     else if (!literals.has(entry.path)) literals.set(entry.path, entry)
   }
@@ -73,6 +76,14 @@ function listFolder (root, ignore = []) {
   }
   walk(root, '')
   return found.sort()
+}
+
+function isFolder (dir) {
+  try {
+    return fs.statSync(dir).isDirectory()
+  } catch (e) {
+    return false
+  }
 }
 
 /** A location is usable only as a plain relative path inside the site. */
@@ -108,13 +119,7 @@ function checkSiteFolder (root, options = {}) {
   // errors that decide a level carry that level; the rest only affect `valid`
   const fail = (level, at, message) => errors.push({ level, path: at, message })
 
-  let stat = null
-  try {
-    stat = fs.statSync(root)
-  } catch (e) {
-    stat = null
-  }
-  if (!stat || !stat.isDirectory()) {
+  if (!isFolder(root)) {
     fail(levels[0], '/', 'not a folder')
     return { level: target, reached: null, valid: false, errors, warnings, unclassified: [], retired: [], counts: {} }
   }
@@ -151,7 +156,11 @@ function checkSiteFolder (root, options = {}) {
   // required paths, each at the level that first asks for it
   for (const entry of contract.entries) {
     if (entry.status !== 'required' || hasWildcard(entry.path)) continue
-    if (!present.has(entry.path)) fail(entry.level, entry.path, `required at the ${entry.level} level (${entry.owner})`)
+    if (isFolderEntry(entry)) {
+      if (!isFolder(path.join(root, entry.path))) fail(entry.level, `${entry.path}/`, `folder required at the ${entry.level} level, even when empty (add ${entry.path}/.gitkeep to keep it in git)`)
+    } else if (!present.has(entry.path)) {
+      fail(entry.level, entry.path, `required at the ${entry.level} level (${entry.owner})`)
+    }
   }
 
   // classify what is there

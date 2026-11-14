@@ -130,11 +130,13 @@ A folder conforms at one of three levels. Each level includes the one before it.
 
 | Level | The folder has | Who targets it |
 | --- | --- | --- |
-| `content` | A valid `site.json` and a file at every item's `location` | Any engine that produces HAXcms content: an exporter from another CMS, a static generator, an agent |
+| `content` | A valid `site.json`, a file at every item's `location`, and a `files/` folder | Any engine that produces HAXcms content: an exporter from another CMS, a static generator, an agent |
 | `runnable` | Content plus the loader files (`index.html`, `build.js`, `build-haxcms.js`) | A folder served as a site from a static host |
 | `managed` | Runnable plus every file a HAXcms backend writes and rebuilds | A site a HAXcms backend or the HAX CLI made, or can take over without rewriting files on the first save |
 
-[`examples/site-folder`](examples/site-folder) is the smallest folder that is a HAXcms site: `site.json` and one HTML file per page.
+[`examples/site-folder`](examples/site-folder) is the smallest folder that is a HAXcms site: `site.json`, one HTML file per page, and `files/`.
+
+`files/` must exist even when a site has no uploads, so tools never have to create it first. Git does not keep an empty folder, so the backends ship `files/.gitkeep` and any other engine that writes a site should too. In the contract it is the one entry with `"kind": "folder"`: the folder has to exist, whatever it holds.
 
 Each entry has a `status` and an `owner`:
 
@@ -152,7 +154,7 @@ node scripts/validate.js --site --json path/to/site                             
 
 `--exhaustive` fails on a file no entry covers. `--new` fails on a retired path. The report's `reached` is the highest level the folder satisfies, whatever level was asked for. In process: `validateSiteFolder(dir, { level, exhaustive, isNew })` and `compareBoilerplate(dir)` from the package.
 
-HAXcms behavior is the source of truth. Entries marked `"boilerplate": true` are the files in `haxcms-nodejs/src/boilerplate/site` and `haxcms-php/system/boilerplate/site`; `managed` and `partly-managed` entries are `getManagedTemplateFiles()` and the managed-file policies (`src/lib/managedFiles.js`, `ManagedFiles.php`); `generated` entries come from `updateAlternateFormats()`. Each backend carries a copy of the contract and fails its tests when its boilerplate or managed-file list disagrees with it, so adding or dropping a site file starts with an edit to this file.
+HAXcms behavior is the source of truth. Entries marked `"boilerplate": true` are the files in `haxcms-nodejs/src/boilerplate/site` and `haxcms-php/system/boilerplate/site`; `managed` and `partly-managed` entries are `getManagedTemplateFiles()`, the files `rebuildManagedFiles()` adds to it (`index.php`, `config.php`, the agent skills) and the managed-file policies (`src/lib/managedFiles.js`, `ManagedFiles.php`); `generated` entries come from `updateAlternateFormats()`. Each backend carries a copy of the contract and fails its tests when its boilerplate or managed-file list disagrees with it, so adding or dropping a site file starts with an edit to this file.
 
 ## Rules for tools and agents that write outlines
 

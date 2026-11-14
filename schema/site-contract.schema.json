@@ -48,6 +48,10 @@
           "minLength": 1,
           "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$))[^\\\\]+$"
         },
+        "kind": {
+          "description": "file (the default): the path is a file or a link. folder: the path is a folder that must exist, whatever it holds; a folder entry never matches a file.",
+          "enum": ["file", "folder"]
+        },
         "status": {
           "description": "required: must exist from `level` up. optional: may exist. retired: no longer written; an existing site may still hold it, a newly made site must not.",
           "enum": ["required", "optional", "retired"]
@@ -95,6 +99,13 @@
         {
           "if": { "properties": { "owner": { "enum": ["managed", "partly-managed"] } } },
           "then": { "required": ["policy"] }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "folder" } }, "required": ["kind"] },
+          "then": {
+            "properties": { "path": { "pattern": "^[^*]+$" } },
+            "not": { "anyOf": [{ "required": ["policy"] }, { "required": ["rule"] }, { "required": ["schema"] }, { "required": ["boilerplate"] }] }
+          }
         }
       ]
     }
