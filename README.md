@@ -154,7 +154,7 @@ node scripts/validate.js --site --json path/to/site                             
 
 `--exhaustive` fails on a file no entry covers. `--new` fails on a retired path. The report's `reached` is the highest level the folder satisfies, whatever level was asked for. In process: `validateSiteFolder(dir, { level, exhaustive, isNew })` and `compareBoilerplate(dir)` from the package.
 
-HAXcms behavior is the source of truth. Entries marked `"boilerplate": true` are the files in `haxcms-nodejs/src/boilerplate/site` and `haxcms-php/system/boilerplate/site`; `managed` and `partly-managed` entries are `getManagedTemplateFiles()` and the managed-file policies (`src/lib/managedFiles.js`, `ManagedFiles.php`); `generated` entries come from `updateAlternateFormats()`. Each backend carries a copy of the contract and fails its tests when its boilerplate or managed-file list disagrees with it, so adding or dropping a site file starts with an edit to this file.
+HAXcms behavior is the source of truth. Entries marked `"boilerplate": true` are the files in `haxcms-nodejs/src/boilerplate/site` and `haxcms-php/system/boilerplate/site`; `managed` and `partly-managed` entries are `getManagedTemplateFiles()`, the files `rebuildManagedFiles()` adds to it (`index.php`, `config.php`, the agent skills) and the managed-file policies (`src/lib/managedFiles.js`, `ManagedFiles.php`); `generated` entries come from `updateAlternateFormats()`. Each backend carries a copy of the contract and fails its tests when its boilerplate or managed-file list disagrees with it, so adding or dropping a site file starts with an edit to this file.
 
 ## Rules for tools and agents that write outlines
 

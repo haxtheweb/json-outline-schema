@@ -269,6 +269,24 @@
       "note": "SCORM 1.2 schema."
     },
     {
+      "path": "index.php",
+      "status": "required",
+      "owner": "managed",
+      "level": "managed",
+      "boilerplate": true,
+      "policy": "replace",
+      "note": "Entry point when a PHP host serves the site. Rewritten on a full rebuild."
+    },
+    {
+      "path": "config.php",
+      "status": "required",
+      "owner": "managed",
+      "level": "managed",
+      "boilerplate": true,
+      "policy": "replace",
+      "note": "Settings and the single-site fallback that index.php loads. Rewritten on a full rebuild."
+    },
+    {
       "path": ".htaccess",
       "status": "required",
       "owner": "partly-managed",
@@ -433,20 +451,6 @@
       "owner": "scaffold",
       "boilerplate": true,
       "note": "GitHub Pages publishing workflow."
-    },
-    {
-      "path": "index.php",
-      "status": "optional",
-      "owner": "scaffold",
-      "boilerplate": true,
-      "note": "Entry point when a PHP host serves the site."
-    },
-    {
-      "path": "config.php",
-      "status": "optional",
-      "owner": "scaffold",
-      "boilerplate": true,
-      "note": "Settings for index.php."
     },
     {
       "path": "assets/banner.jpg",
